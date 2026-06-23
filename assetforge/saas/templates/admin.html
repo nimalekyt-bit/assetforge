@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Дашборд — Админка AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Дашборд</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">MRR</div><div class="kpi-val heat-text">{{ '%.0f'|format(m.mrr) }} ₽</div><div class="kpi-sub">ARR ≈ {{ '%.0f'|format(m.arr) }} ₽</div></div>
+      <div class="kpi"><div class="kpi-label">Пользователи</div><div class="kpi-val">{{ m.total_users }}</div><div class="kpi-sub">платных {{ m.paid_users }} · free {{ m.free_users }}</div></div>
+      <div class="kpi"><div class="kpi-label">Конверсия</div><div class="kpi-val">{{ m.conversion }}%</div><div class="kpi-sub">free → платный</div></div>
+      <div class="kpi"><div class="kpi-label">ARPU</div><div class="kpi-val">{{ '%.0f'|format(m.arpu) }} ₽</div><div class="kpi-sub">на платящего</div></div>
+      <div class="kpi"><div class="kpi-label">Выручка всего</div><div class="kpi-val">{{ '%.0f'|format(m.revenue_total) }} ₽</div><div class="kpi-sub">за 30 дн: {{ '%.0f'|format(m.revenue_30d) }} ₽</div></div>
+      <div class="kpi"><div class="kpi-label">Регистрации</div><div class="kpi-val">{{ m.signups_7d }}</div><div class="kpi-sub">24ч: {{ m.signups_24h }} · 30д: {{ m.signups_30d }}</div></div>
+      <div class="kpi"><div class="kpi-label">Экспортов · {{ m.period }}</div><div class="kpi-val">{{ m.exports_period }}</div><div class="kpi-sub">всего за месяц</div></div>
+      <div class="kpi {{ 'kpi-warn' if m.pending_payments }}"><div class="kpi-label">Платежи в ожидании</div><div class="kpi-val">{{ m.pending_payments }}</div><div class="kpi-sub"><a href="/admin/payments?status=pending">открыть →</a></div></div>
+    </div>
+
+    <div class="chart-toolbar">
+      <span class="muted tiny">Период:</span>
+      <button class="btn sm period-btn on" data-days="7"><span>7 дней</span></button>
+      <button class="btn sm period-btn" data-days="30"><span>30 дней</span></button>
+      <button class="btn sm period-btn" data-days="90"><span>90 дней</span></button>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card"><h3>Регистрации</h3><canvas id="chSignups" height="160"></canvas></div>
+      <div class="card"><h3>Выручка по месяцам (₽)</h3><canvas id="chRevenue" height="160"></canvas></div>
+      <div class="card"><h3>Распределение по тарифам</h3><canvas id="chPlans" height="160"></canvas></div>
+      <div class="card"><h3>Статусы платежей</h3><canvas id="chPayments" height="160"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn sm" href="/admin/export/users.csv"><span>Экспорт пользователей CSV</span></a>
+        <a class="btn sm" href="/admin/export/payments.csv"><span>Экспорт платежей CSV</span></a>
+        <a class="btn sm ghost" href="/admin/health"><span>Здоровье системы</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  if (typeof Chart === "undefined") return;   // нет сети до CDN — graceful
+  Chart.defaults.color = "#8c7d70";
+  Chart.defaults.font.family = "Manrope, Segoe UI, sans-serif";
+  Chart.defaults.borderColor = "rgba(255,255,255,.05)";
+  var ember = "#ff6a1a", brass = "#f0cd8f", flame = "#ff3f0d";
+  var charts = {};
+  function grad(ctx){ var g = ctx.createLinearGradient(0,0,0,180); g.addColorStop(0,"rgba(255,106,26,.45)"); g.addColorStop(1,"rgba(255,106,26,0)"); return g; }
+  function build(d){
+    var sCtx = document.getElementById("chSignups").getContext("2d");
+    var rCtx = document.getElementById("chRevenue").getContext("2d");
+    Object.values(charts).forEach(function(c){ c.destroy(); });
+    charts.s = new Chart(sCtx, {type:"line", data:{labels:d.signups.map(x=>x.day),
+      datasets:[{label:"Регистрации", data:d.signups.map(x=>x.count), borderColor:ember,
+        backgroundColor:grad(sCtx), fill:true, tension:.35, pointRadius:0, borderWidth:2}]},
+      options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+    charts.r = new Chart(rCtx, {type:"bar", data:{labels:d.revenue.map(x=>x.m),
+      datasets:[{label:"₽", data:d.revenue.map(x=>x.v), backgroundColor:ember, borderRadius:6}]},
+      options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}});
+    charts.p = new Chart(document.getElementById("chPlans"), {type:"doughnut",
+      data:{labels:d.plan_distribution.map(x=>x.plan), datasets:[{data:d.plan_distribution.map(x=>x.count),
+        backgroundColor:[brass, ember, flame, "#7bd6a0"]}]}, options:{plugins:{legend:{position:"bottom"}}}});
+    charts.pay = new Chart(document.getElementById("chPayments"), {type:"doughnut",
+      data:{labels:d.payment_status.map(x=>x.status), datasets:[{data:d.payment_status.map(x=>x.count),
+        backgroundColor:["#7bd6a0","#e6b266","#ef8a7a","#8c7d70"]}]}, options:{plugins:{legend:{position:"bottom"}}}});
+  }
+  function load(days){
+    fetch("/admin/metrics.json?days="+days).then(r=>r.json()).then(build).catch(function(){});
+  }
+  document.querySelectorAll(".period-btn").forEach(function(b){
+    b.addEventListener("click", function(){
+      document.querySelectorAll(".period-btn").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); load(b.dataset.days);
+    });
+  });
+  load(7);
+})();
+</script>
+{% endblock %}

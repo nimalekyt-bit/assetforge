@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}A/B-флаги — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">A/B фича-флаги</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+    <p class="muted tiny" style="margin-top:8px">Процент выката — стабильно по пользователю (один и тот же юзер всегда в одной группе). Доступны в <code>/api/me</code> → <code>flags</code>.</p>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Новый / изменить флаг</h3>
+      <form method="post" action="/admin/flags/save" class="admin-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="row">
+          <div class="field"><label>Имя</label><input type="text" name="name" placeholder="new_editor" required></div>
+          <div class="field"><label>Выкат, %</label><input type="number" name="rollout" min="0" max="100" value="100" style="width:90px"></div>
+          <div class="field"><label>Описание</label><input type="text" name="description" placeholder="что включает"></div>
+          <label class="toggle-row" style="border:none;padding:6px 0"><input type="checkbox" name="enabled" value="1" checked><span>Включён</span></label>
+          <button class="btn primary sm" type="submit"><span>Сохранить</span></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <table>
+        <tr><th>Имя</th><th>Выкат</th><th>Статус</th><th>Описание</th><th></th></tr>
+        {% for f in flags %}
+        <tr>
+          <td><b>{{ f.name }}</b></td>
+          <td>{{ f.rollout }}%</td>
+          <td>{% if f.enabled %}<span class="tag paid">вкл</span>{% else %}<span class="tag pending">выкл</span>{% endif %}</td>
+          <td class="muted tiny">{{ f.description }}</td>
+          <td>
+            <form method="post" action="/admin/flags/{{ f.name }}/delete" style="display:inline" onsubmit="return confirm('Удалить флаг {{ f.name }}?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit" style="color:#f4b3a8"><span>×</span></button></form>
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="5" class="muted">Флагов нет.</td></tr>{% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

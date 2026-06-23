@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local config and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/
+
+# Generated output and builds
+out/
+dist/
+build/
+*.spec
+*.zip
+*.rar
+
+# AI/downloaded models
+*.onnx
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary agent/browser folders
+scoped_dir*/
+.codex*/

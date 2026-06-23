@@ -1,0 +1,20 @@
+{
+  "name": "email-marketing",
+  "title": "Email / маркетинг",
+  "description": "Hero и header под письма и лендинги. Непрозрачная подложка (почтовики не любят alpha), PNG + JPG, retina @2x.",
+  "crop": {"fit": "contain", "square": false, "padding_pct": 4},
+  "export": {
+    "sizes": [],
+    "formats": [],
+    "make_contact_sheet": false,
+    "retina": true,
+    "jpg_quality": 88,
+    "jpg_bg": [255, 255, 255],
+    "targets": [
+      {"name": "email-hero-600x300", "w": 600, "h": 300, "fit": "contain", "bg": [255, 255, 255], "format": "png"},
+      {"name": "email-hero-600x300", "w": 600, "h": 300, "fit": "contain", "bg": [255, 255, 255], "format": "jpg"},
+      {"name": "email-header-600x120", "w": 600, "h": 120, "fit": "contain", "bg": [255, 255, 255], "format": "png"},
+      {"name": "signature-300x100", "w": 300, "h": 100, "fit": "contain", "bg": [255, 255, 255], "format": "png"}
+    ]
+  }
+}

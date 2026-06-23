@@ -1,0 +1,76 @@
+{
+  "free": {
+    "id": "free",
+    "title": "Free",
+    "price": 0,
+    "price_rub": 0,
+    "period_days": 0,
+    "tagline": "Чтобы попробовать",
+    "limits": {
+      "exports_per_month": 20,
+      "max_dimension": 1024,
+      "batch_max_files": 3,
+      "formats": ["png", "ico", "webp"],
+      "ai_background": false,
+      "contact_sheet": true,
+      "watermark": false
+    },
+    "features": [
+      "20 экспортов в месяц",
+      "Размеры до 1024 px",
+      "PNG, ICO, WebP",
+      "Удаление фона (алгоритмы)",
+      "Batch до 3 файлов"
+    ]
+  },
+  "pro": {
+    "id": "pro",
+    "title": "Pro",
+    "price": 9,
+    "price_rub": 790,
+    "period_days": 30,
+    "tagline": "Для постоянной работы",
+    "popular": true,
+    "limits": {
+      "exports_per_month": 2000,
+      "max_dimension": 4096,
+      "batch_max_files": 100,
+      "formats": ["png", "ico", "icns", "webp", "svg"],
+      "ai_background": true,
+      "contact_sheet": true,
+      "watermark": false
+    },
+    "features": [
+      "2000 экспортов в месяц",
+      "Размеры до 4096 px",
+      "Все форматы: PNG, ICO, ICNS, WebP, SVG",
+      "AI-удаление сложного фона",
+      "Batch до 100 файлов",
+      "Приоритетная обработка"
+    ]
+  },
+  "business": {
+    "id": "business",
+    "title": "Business",
+    "price": 29,
+    "price_rub": 2490,
+    "period_days": 30,
+    "tagline": "Команды и студии",
+    "limits": {
+      "exports_per_month": 100000,
+      "max_dimension": 8192,
+      "batch_max_files": 1000,
+      "formats": ["png", "ico", "icns", "webp", "svg"],
+      "ai_background": true,
+      "contact_sheet": true,
+      "watermark": false
+    },
+    "features": [
+      "Практически безлимитные экспорты",
+      "Размеры до 8192 px",
+      "Все форматы + AI-фон",
+      "Batch до 1000 файлов",
+      "Приоритетная поддержка"
+    ]
+  }
+}

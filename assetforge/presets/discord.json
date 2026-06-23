@@ -1,0 +1,7 @@
+{
+  "name": "discord",
+  "title": "Discord (server/app icon)",
+  "description": "Иконки сервера/бота Discord (рекомендуется 512, минимум 128).",
+  "export": { "sizes": [128, 256, 512], "formats": ["png", "webp"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 4.0 }
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AssetForge — нарезка ассетов</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+  <link rel="stylesheet" href="/static/fonts/fonts.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="emberGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1df"/><stop offset=".45" stop-color="#f0cd8f"/><stop offset="1" stop-color="#ff3f0d"/>
+    </linearGradient>
+  </defs></svg>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 1 L19 11 L29 14 L19 17 L16 31 L13 17 L3 14 L13 11 Z" fill="url(#emberGrad)"/>
+      </svg>
+      ASSET<i>FORGE</i><span class="muted">нарезка · фон · иконки</span>
+    </a>
+    <div class="top-actions">
+      <label class="field inline">
+        <span>Пресет</span>
+        <select id="preset"></select>
+      </label>
+      <button id="btnBatch" class="ghost" title="Обработать несколько файлов разом в общий ZIP">Batch ZIP</button>
+      <span id="deskInfo" class="hidden" style="display:flex;gap:10px;align-items:center;font-size:12px">
+        <span id="deskPlan" class="badge"></span>
+        <span id="deskEmail" class="muted ellipsis" style="max-width:160px"></span>
+        <button id="deskLoginBtn" class="ghost sm">Войти</button>
+        <a id="deskUpgrade" class="upgrade-link hidden" href="#" style="color:#ff924a;font-weight:600">Pro</a>
+        <button id="deskLogoutBtn" class="ghost sm hidden">Выйти</button>
+      </span>
+      <span id="saasInfo" class="hidden" style="display:flex;gap:10px;align-items:center;font-size:12px">
+        <span id="saasPlan" class="badge"></span>
+        <span id="saasUsage" class="muted"></span>
+        <a href="/pricing" style="color:#8c7d70">Тарифы</a>
+        <a href="/pricing" class="upgrade-link" style="color:#ff924a;font-weight:600">Апгрейд</a>
+        <a id="saasAccount" href="/account" style="color:#f0cd8f">Кабинет</a>
+        <a id="saasLogout" href="/logout" style="color:#8c7d70">Выйти</a>
+      </span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ЛЕВО: источник + объекты -->
+    <aside class="panel left">
+      <div id="drop" class="dropzone">
+        <input id="file" type="file" accept="image/*" multiple hidden />
+        <input id="folder" type="file" webkitdirectory directory multiple hidden />
+        <div class="dz-inner">
+          <div class="dz-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+        </div>
+          <div>Перетащи картинку(и) или <b>папку</b><br><span class="muted">либо нажми, чтобы выбрать</span></div>
+          <div class="dz-buttons">
+            <button id="pickFiles" class="ghost sm">Файлы</button>
+            <button id="pickFolder" class="ghost sm">Папка</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="srcInfo" class="src-info hidden">
+        <img id="srcThumb" alt="" />
+        <div class="src-meta">
+          <div id="srcName" class="ellipsis">—</div>
+          <div id="srcDims" class="muted">—</div>
+        </div>
+      </div>
+
+      <div id="assetHint" class="hidden" style="margin-top:10px;padding:8px 11px;border:1px solid var(--ash-line);border-radius:9px;background:rgba(255,106,26,.06);font-size:12px;color:var(--smoke)"></div>
+
+      <div class="block">
+        <div class="block-title">Объекты <span id="objCount" class="badge">0</span></div>
+        <div id="objects" class="objects" data-placeholder="Объекты появятся после анализа"></div>
+        <div class="muted tiny">Авто-разделение нескольких лого в одном файле.</div>
+      </div>
+
+      <div id="batchList" class="block hidden">
+        <div class="block-title">Очередь batch <span id="batchCount" class="badge">0</span></div>
+        <div id="batchItems" class="batch-items"></div>
+      </div>
+    </aside>
+
+    <!-- ЦЕНТР: две стадии предпросмотра -->
+    <section class="panel center">
+      <div class="stage">
+        <div class="stage-head">
+          <h3>1 · Фон удалён</h3>
+          <span id="bgBadge" class="badge wide">—</span>
+        </div>
+        <div class="stage-body">
+          <div class="preview-frame checker">
+            <span class="ph">Здесь появится результат — загрузите изображение</span>
+            <img id="fgPreview" class="contain" alt="" />
+          </div>
+          <div id="bgNotes" class="notes"></div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-head">
+          <h3>2 · Обрезка / кадрирование</h3>
+          <span id="cropBbox" class="badge wide">—</span>
+        </div>
+        <div class="stage-body">
+          <div class="triple">
+            <div><div class="cap">Светлый</div><div class="preview-frame light"><span class="ph">—</span><img id="cropLight" class="contain" alt=""></div></div>
+            <div><div class="cap">Тёмный</div><div class="preview-frame dark"><span class="ph">—</span><img id="cropDark" class="contain" alt=""></div></div>
+            <div><div class="cap">Шахматка</div><div class="preview-frame checker"><span class="ph">—</span><img id="cropChecker" class="contain" alt=""></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-head"><h3>3 · Реальные размеры</h3><span class="muted tiny">пиксель-в-пиксель</span></div>
+        <div id="samples" class="samples" data-placeholder="Реальные размеры появятся после анализа"></div>
+      </div>
+    </section>
+
+    <!-- ПРАВО: override-настройки -->
+    <aside class="panel right">
+      <div class="block">
+        <div class="block-title">Фон</div>
+        <label class="field"><span>Режим</span>
+          <select id="bgMode">
+            <option value="auto">Авто</option>
+            <option value="alpha">Только alpha</option>
+            <option value="white">Белый фон</option>
+            <option value="solid">Однотонный</option>
+            <option value="checker">Шахматка / прозрачность</option>
+            <option value="chroma">Хромакей</option>
+            <option value="ai">AI (rembg)</option>
+            <option value="none">Не трогать</option>
+          </select>
+        </label>
+        <label class="field"><span>Ключевой цвет</span>
+          <span class="rowflex">
+            <input type="color" id="keyColor" value="#00ff00" />
+            <button id="keyAuto" class="ghost sm">Авто</button>
+          </span>
+        </label>
+        <label class="slider" title="Насколько похожий на фон цвет считать фоном"><span>Порог (threshold) <b id="vTol">32</b></span>
+          <input type="range" id="tolerance" min="0" max="160" value="32" />
+          <span class="muted tiny">Насколько похожий на фон цвет считать фоном.</span></label>
+        <label class="slider" title="Размытие границы для плавного перехода"><span>Мягкий край (feather) <b id="vSoft">24</b></span>
+          <input type="range" id="softness" min="0" max="120" value="24" />
+          <span class="muted tiny">Размытие границы для плавного перехода.</span></label>
+        <label class="slider" title="Убирает цветной ореол от фона на краях"><span>Despill сила <b id="vDespill">1.0</b></span>
+          <input type="range" id="despill" min="0" max="150" value="100" />
+          <span class="muted tiny">Убирает цветной ореол от фона на краях.</span></label>
+        <label class="slider" title="Обрезает полупрозрачные пиксели по краю"><span>Trim alpha <b id="vTrim">16</b></span>
+          <input type="range" id="trim" min="0" max="128" value="16" />
+          <span class="muted tiny">Обрезает полупрозрачные пиксели по краю.</span></label>
+      </div>
+
+      <div class="block">
+        <div class="block-title">Кадрирование</div>
+        <label class="field"><span>Разделение на ассеты</span>
+          <select id="split">
+            <option value="auto">Авто — определить сам</option>
+            <option value="objects">Каждый объект отдельно</option>
+            <option value="grid">Сетка N×M</option>
+            <option value="single">Один общий</option>
+            <option value="xycut">По полосам (XY-cut)</option>
+          </select>
+        </label>
+        <label class="slider" id="mergeRow" title="Склеивать части, что ближе этого расстояния (буквы одного лого не дробятся)">
+          <span>Объединять близкие части <b id="vMerge">0</b> px</span>
+          <input type="range" id="merge" min="0" max="120" value="0" />
+          <span class="muted tiny">0 — каждый ассет отдельно; больше — группирует близкие части.</span></label>
+        <div class="rowflex hidden" id="gridRow" style="gap:10px">
+          <label class="field" style="margin:0"><span>Строк</span>
+            <input type="number" id="gridRows" min="1" max="50" value="3" style="width:72px"></label>
+          <label class="field" style="margin:0"><span>Столбцов</span>
+            <input type="number" id="gridCols" min="1" max="50" value="3" style="width:72px"></label>
+        </div>
+        <label class="field"><span>Вписывание</span>
+          <select id="fit">
+            <option value="contain">В квадрат (contain)</option>
+            <option value="width">По ширине (лого)</option>
+            <option value="none">Как есть</option>
+          </select>
+        </label>
+        <label class="field"><span>Выравнивание</span>
+          <select id="align">
+            <option value="center">Центр</option>
+            <option value="top">Верх</option>
+            <option value="bottom">Низ</option>
+            <option value="left">Лево</option>
+            <option value="right">Право</option>
+          </select>
+        </label>
+        <label class="slider"><span>Паддинг <b id="vPad">6</b>%</span>
+          <input type="range" id="padding" min="0" max="40" value="6" /></label>
+      </div>
+
+      <div class="block">
+        <div class="block-title">Экспорт</div>
+        <div class="field-col"><span class="lbl">Размеры</span><div id="sizes" class="chips"></div></div>
+        <div class="field-col"><span class="lbl">Форматы</span>
+          <div id="formats" class="chips">
+            <label class="chip"><input type="checkbox" value="png" checked> PNG</label>
+            <label class="chip"><input type="checkbox" value="ico"> ICO</label>
+            <label class="chip"><input type="checkbox" value="icns"> ICNS</label>
+            <label class="chip"><input type="checkbox" value="webp"> WebP</label>
+            <label class="chip"><input type="checkbox" value="svg"> SVG wrapper</label>
+          </div>
+          <div class="muted tiny">SVG wrapper = PNG внутри SVG (не векторизация).</div>
+        </div>
+      </div>
+
+      <div class="export-bar">
+        <button id="btnExportOne" class="primary">Экспорт объекта</button>
+        <button id="btnExportAll" class="ghost">Все объекты</button>
+      </div>
+      <div id="status" class="status"></div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- desktop: модалка входа в аккаунт -->
+  <div id="loginModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-head">
+        <svg class="mark" viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+          <path d="M16 1 L19 11 L29 14 L19 17 L16 31 L13 17 L3 14 L13 11 Z" fill="url(#emberGrad)"/>
+        </svg>
+        <span>Вход в AssetForge</span>
+      </div>
+      <p class="muted tiny">Войдите, чтобы снять ограничения по вашему тарифу. Аккаунт — общий с сайтом.</p>
+      <label class="field"><span>Email</span>
+        <input type="email" id="loginEmail" autocomplete="username" placeholder="you@example.com"></label>
+      <label class="field"><span>Пароль</span>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••"></label>
+      <div id="loginErr" class="status err" style="min-height:0"></div>
+      <div class="modal-actions">
+        <button id="loginSubmit" class="primary">Войти</button>
+        <button id="loginCancel" class="ghost">Отмена</button>
+      </div>
+      <p class="muted tiny" style="text-align:center;margin-top:4px">
+        Нет аккаунта? <a id="registerLink" href="#" style="color:#f0cd8f">Зарегистрироваться</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

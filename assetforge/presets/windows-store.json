@@ -1,0 +1,7 @@
+{
+  "name": "windows-store",
+  "title": "Windows Store / MSIX tiles",
+  "description": "Плитки и логотипы для Windows Store (Square44/150/310, Store logo 50).",
+  "export": { "sizes": [44, 50, 71, 89, 107, 150, 310, 512], "formats": ["png"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 6.0 }
+}

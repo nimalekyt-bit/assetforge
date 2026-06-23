@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Подтверждение входа — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Двухфакторная аутентификация</span>
+  <h2 class="display">Введите код</h2>
+  <p class="muted tiny" style="margin:8px 0 16px">Откройте приложение-аутентификатор и введите текущий 6-значный код.</p>
+  {% if error %}<div class="flash err" style="margin-bottom:14px">{{ error }}</div>{% endif %}
+  <form method="post" action="/login/2fa">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field"><label>Код</label>
+      <input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*"
+             maxlength="6" required autofocus placeholder="000000" style="letter-spacing:.3em;text-align:center"></div>
+    <button class="btn primary block lg" type="submit"><span>Войти</span></button>
+  </form>
+  <p class="muted tiny center" style="margin-top:14px"><a href="/login">← Отмена</a></p>
+</div>
+{% endblock %}

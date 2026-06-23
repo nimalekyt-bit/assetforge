@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal" style="text-align:center">
+  <h2 class="display">{{ title }}</h2>
+  <div class="flash {{ 'ok' if ok else 'err' }}" style="margin:18px 0">{{ message }}</div>
+  <div class="cta" style="justify-content:center">
+    <a class="btn primary" href="/app"><span>Открыть инструмент</span></a>
+    <a class="btn" href="/"><span>На главную</span></a>
+  </div>
+</div>
+{% endblock %}

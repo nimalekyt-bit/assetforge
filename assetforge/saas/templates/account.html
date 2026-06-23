@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Кабинет — AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Личный кабинет</span>
+    <h2 class="display">Ваша кузница</h2>
+    <p class="muted">{{ user.email }}{% if user.name %} · {{ user.name }}{% endif %}</p>
+
+    {% if message %}<div class="flash ok" style="margin-top:18px">{{ message }}</div>{% endif %}
+    {% if error %}<div class="flash err" style="margin-top:18px">{{ error }}</div>{% endif %}
+
+    <div class="acct-grid">
+      <div class="card">
+        <h3>Подписка</h3>
+        <div class="stat"><span class="muted">Тариф</span><b>{{ plan.title }}</b></div>
+        {% if user.plan_until and plan.id != 'free' %}
+          <div class="stat"><span class="muted">{{ 'Продлевается' if user.auto_renew else 'Активна до' }}</span><b>{{ user.plan_until.strftime('%d.%m.%Y') }}</b></div>
+          {% if not user.auto_renew %}<div class="flash" style="border-color:var(--ash-line);color:var(--smoke-dim);margin-top:10px">Автопродление отключено — доступ сохранится до этой даты.</div>{% endif %}
+        {% endif %}
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+          {% if plan.id == 'free' %}
+            <a class="btn primary" href="/pricing"><span>Разогреть до Pro</span></a>
+          {% else %}
+            <a class="btn" href="/pricing"><span>Сменить тариф</span></a>
+            {% if user.auto_renew %}
+            <form method="post" action="/account/cancel" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn ghost" type="submit"><span>Отменить продление</span></button></form>
+            {% else %}
+            <form method="post" action="/account/resume" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn ghost" type="submit"><span>Возобновить продление</span></button></form>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Использование · {{ usage.period }}</h3>
+        <div class="stat"><span class="muted">Экспортов</span><b>{{ usage.exports_used }} / {{ usage.exports_limit }}</b></div>
+        <div class="bar" role="progressbar" aria-label="Использовано экспортов"
+             aria-valuemin="0" aria-valuemax="{{ usage.exports_limit }}" aria-valuenow="{{ usage.exports_used }}">
+          <i style="width:{{ [100, (100 * usage.exports_used / usage.exports_limit)]|min if usage.exports_limit else 0 }}%"></i>
+        </div>
+        <p class="tiny muted" style="margin-top:10px">Осталось {{ usage.exports_left }} экспортов в этом месяце.</p>
+        <a class="btn primary" style="margin-top:12px" href="/app"><span>Открыть инструмент</span></a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Промокод</h3>
+      <form method="post" action="/promo/redeem" style="display:flex;gap:10px;margin-top:10px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="text" class="field" style="flex:1" name="code" placeholder="Введите промокод">
+        <button class="btn" type="submit"><span>Активировать</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Профиль</h3>
+      <form method="post" action="/account/profile" style="display:flex;gap:10px;margin-top:10px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="text" class="field" style="flex:1" name="name" value="{{ user.name }}" placeholder="Ваше имя">
+        <button class="btn" type="submit"><span>Сохранить</span></button>
+      </form>
+      <p class="muted tiny" style="margin-top:8px">Email: <b style="color:var(--bone)">{{ user.email }}</b></p>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Смена пароля</h3>
+      <form method="post" action="/account/password" style="margin-top:10px;max-width:420px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="field"><label>Текущий пароль</label><input type="password" name="old_password" required></div>
+        <div class="field"><label>Новый пароль</label><input type="password" name="new_password" required minlength="6"></div>
+        <button class="btn primary" type="submit"><span>Изменить пароль</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Двухфакторная аутентификация</h3>
+      <p class="muted tiny" style="margin:6px 0 10px">
+        {% if user.totp_enabled %}2FA включена — вход требует код из приложения.{% else %}Защитите вход кодом из приложения-аутентификатора.{% endif %}
+      </p>
+      <a class="btn" href="/account/2fa"><span>{{ 'Управление 2FA' if user.totp_enabled else 'Включить 2FA' }}</span></a>
+    </div>
+
+    <div class="card" style="margin-top:18px" id="api">
+      <h3>API-ключи</h3>
+      <p class="muted tiny" style="margin:6px 0 10px">Для интеграций через REST (<code>POST /api/v1/cutout</code>). Доступно на платном тарифе.</p>
+      {% if new_api_key %}
+      <div class="flash ok" style="margin-bottom:12px">
+        Ваш новый ключ (показывается один раз — сохраните его):<br>
+        <code style="word-break:break-all;font-size:13px">{{ new_api_key }}</code>
+      </div>
+      {% endif %}
+      {% if api_keys %}
+      <table>
+        <tr><th>Название</th><th>Префикс</th><th>Создан</th><th>Использован</th><th>Статус</th><th></th></tr>
+        {% for k in api_keys %}
+        <tr>
+          <td>{{ k.name }}</td>
+          <td><code>af_{{ k.prefix }}…</code></td>
+          <td>{{ k.created_at.strftime('%d.%m.%Y') }}</td>
+          <td>{{ k.last_used_at.strftime('%d.%m.%Y %H:%M') if k.last_used_at else '—' }}</td>
+          <td>{% if k.revoked %}<span class="tag failed">отозван</span>{% else %}<span class="tag paid">активен</span>{% endif %}</td>
+          <td>{% if not k.revoked %}
+            <form method="post" action="/account/apikeys/{{ k.id }}/revoke" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit" style="color:#f4b3a8"><span>Отозвать</span></button></form>
+          {% endif %}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+      <form method="post" action="/account/apikeys/create" style="display:flex;gap:10px;margin-top:10px;max-width:480px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="text" class="field" style="flex:1" name="name" placeholder="Название ключа (напр. CI)">
+        <button class="btn" type="submit"><span>Создать ключ</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Пригласить друга</h3>
+      <p class="muted tiny" style="margin:6px 0 10px">Когда приглашённый оформит платную подписку, вы получите +14 дней Pro.</p>
+      <input type="text" class="field" style="width:100%" value="{{ ref_link }}" readonly onclick="this.select()">
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Удаление аккаунта</h3>
+      <p class="muted tiny" style="margin:6px 0 10px">Безвозвратно удалит аккаунт и связанные данные (платежи, использование).</p>
+      <form method="post" action="/account/delete" style="display:flex;gap:10px;max-width:420px"
+            onsubmit="return confirm('Точно удалить аккаунт? Это необратимо.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="password" class="field" style="flex:1" name="password" placeholder="Подтвердите паролем" required>
+        <button class="btn ghost" type="submit" style="border-color:rgba(239,138,122,.5);color:#f4b3a8"><span>Удалить</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>История платежей</h3>
+      {% if payments %}
+      <table>
+        <tr><th>Дата</th><th>Тариф</th><th>Сумма</th><th>Провайдер</th><th>Статус</th></tr>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td>{{ p.plan_id }}</td>
+          <td>{{ '%.2f'|format(p.amount) }} {{ p.currency }}</td>
+          <td>{{ p.provider }}</td>
+          <td><span class="tag {{ p.status }}">{{ p.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}<p class="muted tiny" style="margin-top:8px">Платежей пока нет.</p>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

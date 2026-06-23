@@ -1,0 +1,7 @@
+{
+  "name": "icon-set",
+  "title": "Icon set (16–512)",
+  "description": "Базовый набор иконок для общего применения.",
+  "export": { "sizes": [16, 32, 48, 64, 128, 256, 512], "formats": ["png", "ico", "icns", "webp"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 6.0 }
+}

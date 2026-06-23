@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Новый пароль — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Восстановление доступа</span>
+  <h2 class="display">Новый пароль</h2>
+  {% if error %}<div class="flash err" style="margin-top:16px">{{ error }}</div>{% endif %}
+  <form method="post" action="/reset" style="margin-top:16px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="token" value="{{ token }}">
+    <div class="field"><label>Новый пароль</label><input name="password" type="password" required minlength="6" autofocus></div>
+    <button class="btn primary block lg" type="submit"><span>Сохранить пароль</span></button>
+  </form>
+  <p class="muted tiny center" style="margin-top:16px"><a href="/login">Вернуться ко входу</a></p>
+</div>
+{% endblock %}

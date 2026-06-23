@@ -1,0 +1,14 @@
+{
+  "name": "sticker",
+  "title": "Стикер (контур + тень)",
+  "description": "Die-cut стикер: белый контур по силуэту + мягкая тень. Telegram/Discord/маркетплейсы.",
+  "crop": {"fit": "contain", "square": true, "padding_pct": 14},
+  "export": {
+    "sizes": [128, 256, 512],
+    "formats": ["png", "webp"],
+    "effects": [
+      {"type": "outline", "width_pct": 6, "color": [255, 255, 255, 255]},
+      {"type": "shadow", "dy": 6, "blur": 12, "color": [0, 0, 0, 120]}
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Вход — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">С возвращением</span>
+  <h2 class="display">Вход в кузницу</h2>
+  {% if error %}<div class="flash err" style="margin-top:16px">{{ error }}</div>{% endif %}
+  <form method="post" action="/login" style="margin-top:18px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ next or '/app' }}">
+    <div class="field"><label>Email</label><input name="email" type="email" required autofocus></div>
+    <div class="field"><label>Пароль</label><input name="password" type="password" required></div>
+    <button class="btn primary block lg" type="submit"><span>Войти</span></button>
+  </form>
+  <p class="muted tiny center" style="margin-top:16px">
+    <a href="/forgot">Забыли пароль?</a> · Нет аккаунта? <a href="/register">Регистрация</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Политика конфиденциальности — AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:840px">
+    <span class="eyebrow">Правовая информация</span>
+    <h2 class="display">Политика конфиденциальности</h2>
+    <p class="muted tiny" style="margin-bottom:24px">Редакция от 09.06.2026 · шаблон для демо-проекта.</p>
+
+    <div class="card" style="margin-bottom:16px"><h3>1. Какие данные мы обрабатываем</h3>
+      <p class="muted">Email и пароль (в виде необратимого хэша) для доступа к аккаунту; служебные данные об использовании (счётчики экспортов, история платежей). Загружаемые изображения обрабатываются для получения результата.</p></div>
+    <div class="card" style="margin-bottom:16px"><h3>2. Зачем</h3>
+      <p class="muted">Для предоставления Сервиса, учёта лимитов тарифа, обработки платежей и связи по вопросам поддержки.</p></div>
+    <div class="card" style="margin-bottom:16px"><h3>3. Хранение и безопасность</h3>
+      <p class="muted">Пароли хранятся в виде bcrypt-хэшей. Сессии защищены подписанными cookie со строгим SameSite. Десктоп-версия (.exe) работает офлайн и не передаёт ваши файлы на сервер.</p></div>
+    <div class="card" style="margin-bottom:16px"><h3>4. Передача третьим лицам</h3>
+      <p class="muted">Мы не продаём ваши данные. Платёжные операции выполняются через подключённого провайдера (Stripe / ЮKassa) согласно его политике.</p></div>
+    <div class="card"><h3>5. Ваши права</h3>
+      <p class="muted">Вы можете запросить удаление аккаунта и связанных данных, написав на <a href="/contacts">Контакты</a>.</p></div>
+  </div>
+</section>
+{% endblock %}

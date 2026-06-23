@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{{ u.email }} — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow"><a href="/admin/users">← к списку</a></span>
+    <h2 class="display" style="word-break:break-all">{{ u.email }}</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+    {% if error %}<div class="flash err" style="margin-top:16px">{{ error }}</div>{% endif %}
+
+    <div class="acct-grid" style="margin-top:18px">
+      <div class="card">
+        <h3>Профиль</h3>
+        <div class="stat"><span class="muted">ID</span><b>{{ u.id }}</b></div>
+        <div class="stat"><span class="muted">Имя</span><b>{{ u.name or '—' }}</b></div>
+        <div class="stat"><span class="muted">Email подтверждён</span><b>{{ 'да' if u.email_verified else 'нет' }}</b></div>
+        <div class="stat"><span class="muted">Статус</span><b>{{ 'заблокирован' if not u.is_active else 'активен' }}</b></div>
+        <div class="stat"><span class="muted">Админ</span><b>{{ 'да' if u.is_admin else 'нет' }}</b></div>
+        <div class="stat"><span class="muted">Роль</span><b>{{ u.role }}</b></div>
+        <div class="stat"><span class="muted">Регистрация</span><b>{{ u.created_at.strftime('%d.%m.%Y %H:%M') }}</b></div>
+      </div>
+      <div class="card">
+        <h3>Подписка</h3>
+        <div class="stat"><span class="muted">Тариф</span><b>{{ u.effective_plan() }}</b></div>
+        <div class="stat"><span class="muted">Действует до</span><b>{{ u.plan_until.strftime('%d.%m.%Y') if u.plan_until else '—' }}</b></div>
+        <div class="stat"><span class="muted">Автопродление</span><b>{{ 'вкл' if u.auto_renew else 'выкл' }}</b></div>
+        <div class="stat"><span class="muted">Экспортов · {{ usage.period }}</span><b>{{ usage.exports_used }} / {{ usage.exports_limit }}</b></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Действия</h3>
+      <form method="post" action="/admin/users/{{ u.id }}/action" class="admin-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="row">
+          <select name="plan_id">
+            {% for pid, p in plans.items() if pid != 'free' %}<option value="{{ pid }}">{{ p.title }}</option>{% endfor %}
+          </select>
+          <input type="number" name="days" value="30" min="1" max="3650" style="width:90px" title="дней">
+          <button class="btn sm primary" name="action" value="grant_plan" type="submit"><span>Выдать тариф</span></button>
+          <button class="btn sm" name="action" value="revoke_plan" type="submit"><span>Снять тариф</span></button>
+          <button class="btn sm" name="action" value="reset_quota" type="submit"><span>Сбросить квоту</span></button>
+        </div>
+        <div class="row">
+          {% if not u.email_verified %}<button class="btn sm" name="action" value="verify_email" type="submit"><span>Подтвердить email</span></button>{% endif %}
+          <button class="btn sm" name="action" value="toggle_block" type="submit"><span>{{ 'Разблокировать' if not u.is_active else 'Заблокировать' }}</span></button>
+          <button class="btn sm" name="action" value="toggle_admin" type="submit"><span>{{ 'Снять админа' if u.is_admin else 'Сделать админом' }}</span></button>
+          {% if u.totp_enabled %}<button class="btn sm" name="action" value="reset_2fa" type="submit"><span>Сбросить 2FA</span></button>{% endif %}
+          <button class="btn sm" name="action" value="force_logout" type="submit"><span>Завершить сессии</span></button>
+        </div>
+      </form>
+
+      <form method="post" action="/admin/users/{{ u.id }}/action" style="margin-top:12px;max-width:520px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="muted tiny">Письмо пользователю</label>
+        <input type="text" name="subject" placeholder="Тема" style="width:100%;margin-top:6px">
+        <textarea name="body" rows="3" placeholder="Текст письма" style="width:100%;margin-top:6px"></textarea>
+        <button class="btn sm" name="action" value="send_email" type="submit" style="margin-top:8px"><span>Отправить письмо</span></button>
+      </form>
+
+      <form method="post" action="/admin/users/{{ u.id }}/impersonate" style="margin-top:6px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn sm ghost" type="submit"><span>Войти как пользователь</span></button>
+      </form>
+
+      {% if user.is_superadmin %}
+      <form method="post" action="/admin/users/{{ u.id }}/action" class="row" style="margin-top:10px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <select name="role">
+          {% for rname in ['user', 'support', 'admin', 'superadmin'] %}
+          <option value="{{ rname }}" {{ 'selected' if u.role == rname }}>{{ rname }}</option>{% endfor %}
+        </select>
+        <button class="btn sm" name="action" value="set_role" type="submit"><span>Сменить роль</span></button>
+      </form>
+      {% endif %}
+
+      <form method="post" action="/admin/users/{{ u.id }}/action" style="margin-top:14px">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="muted tiny">Заметки администратора</label>
+        <textarea name="notes" rows="3" style="width:100%;margin-top:6px">{{ u.notes }}</textarea>
+        <button class="btn sm" name="action" value="save_notes" type="submit" style="margin-top:8px"><span>Сохранить заметки</span></button>
+      </form>
+
+      <form method="post" action="/admin/users/{{ u.id }}/action" style="margin-top:14px"
+            onsubmit="return confirm('Удалить пользователя безвозвратно?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="btn sm" name="action" value="delete" type="submit"
+                style="border-color:rgba(239,138,122,.5);color:#f4b3a8"><span>Удалить аккаунт</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Хронология</h3>
+      <div class="timeline">
+        {% for t, kind, text in timeline %}
+        <div class="tl-row">
+          <span class="tl-time">{{ t.strftime('%d.%m.%Y %H:%M') }}</span>
+          <span class="tl-kind">{{ kind }}</span>
+          <span class="tl-text muted">{{ text }}</span>
+        </div>
+        {% else %}<p class="muted tiny">Событий нет.</p>{% endfor %}
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Платежи</h3>
+      {% if payments %}
+      <table>
+        <tr><th>Дата</th><th>Тариф</th><th>Сумма</th><th>Провайдер</th><th>Статус</th></tr>
+        {% for p in payments %}
+        <tr><td>{{ p.created_at.strftime('%d.%m.%Y') }}</td><td>{{ p.plan_id }}</td>
+          <td>{{ '%.2f'|format(p.amount) }} {{ p.currency }}</td><td>{{ p.provider }}</td>
+          <td><span class="tag {{ p.status }}">{{ p.status }}</span></td></tr>
+        {% endfor %}
+      </table>
+      {% else %}<p class="muted tiny">Платежей нет.</p>{% endif %}
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Использование по месяцам</h3>
+      {% if usages %}
+      <table><tr><th>Период</th><th>Экспортов</th></tr>
+        {% for r in usages %}<tr><td>{{ r.period }}</td><td>{{ r.exports }}</td></tr>{% endfor %}
+      </table>
+      {% else %}<p class="muted tiny">Нет данных.</p>{% endif %}
+      {% if redemptions %}
+      <h3 style="margin-top:16px">Промокоды</h3>
+      <p class="muted tiny">{{ redemptions | map(attribute='code') | join(', ') }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

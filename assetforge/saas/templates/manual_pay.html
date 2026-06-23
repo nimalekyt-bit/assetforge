@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Оплата (демо) — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Демо-режим</span>
+  <h2 class="display">Оплата подписки</h2>
+  <div class="flash ok" style="margin:16px 0">Реальные платежи не подключены — это безопасная демонстрация флоу подписки.</div>
+  <div class="stat"><span class="muted">Тариф</span><b>{{ plan.title }}</b></div>
+  <div class="stat"><span class="muted">Сумма</span><b>{{ '%.2f'|format(payment.amount) }} {{ payment.currency }}</b></div>
+  {% if payment.promo_code %}<div class="stat"><span class="muted">Промокод</span><b>{{ payment.promo_code }}</b></div>{% endif %}
+  <div class="stat"><span class="muted">Период</span><b>{{ payment.period_days }} дн.</b></div>
+
+  {% if demo %}
+  <form method="post" action="/billing/manual/{{ payment.id }}/confirm" style="margin-top:20px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn primary block lg" type="submit"><span>Оплатить (демо) ✓</span></button>
+  </form>
+  {% else %}
+  <div class="flash ok" style="margin-top:18px">Платёж создан и ожидает подтверждения администратором.</div>
+  {% endif %}
+  <p class="center tiny muted" style="margin-top:14px"><a href="/pricing">Отмена</a></p>
+</div>
+{% endblock %}

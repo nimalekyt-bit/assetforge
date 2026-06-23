@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Двухфакторная аутентификация — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Безопасность</span>
+  <h2 class="display">Двухфакторная аутентификация</h2>
+  {% if error %}<div class="flash err" style="margin:14px 0">{{ error }}</div>{% endif %}
+
+  {% if enabled %}
+    <div class="flash ok" style="margin:14px 0">2FA включена для вашего аккаунта.</div>
+    <form method="post" action="/account/2fa/disable" style="max-width:380px">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="field"><label>Пароль для отключения</label><input type="password" name="password" required></div>
+      <button class="btn ghost" type="submit"><span>Отключить 2FA</span></button>
+    </form>
+  {% else %}
+    <p class="muted" style="margin:10px 0 14px">Отсканируйте QR в приложении (Google Authenticator, Authy и т.п.)
+       или введите ключ вручную, затем подтвердите кодом.</p>
+    {% if qr %}<img src="{{ qr }}" alt="QR для 2FA" style="width:180px;border-radius:10px;border:1px solid var(--ash-line);background:#fff;padding:8px">{% endif %}
+    <div class="field" style="margin-top:12px"><label>Ключ (если нет QR)</label>
+      <input type="text" value="{{ secret }}" readonly style="font-family:monospace;letter-spacing:.1em"></div>
+    <p class="muted tiny" style="word-break:break-all">otpauth: {{ uri }}</p>
+    <form method="post" action="/account/2fa/enable" style="max-width:380px;margin-top:10px">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="field"><label>Код из приложения</label>
+        <input name="code" inputmode="numeric" maxlength="6" required placeholder="000000"
+               style="letter-spacing:.3em;text-align:center"></div>
+      <button class="btn primary" type="submit"><span>Включить 2FA</span></button>
+    </form>
+  {% endif %}
+  <p class="muted tiny center" style="margin-top:16px"><a href="/account">← В кабинет</a></p>
+</div>
+{% endblock %}

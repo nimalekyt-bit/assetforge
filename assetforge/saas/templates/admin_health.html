@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Здоровье системы — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Здоровье системы</h2>
+    {% include "_admin_nav.html" %}
+
+    <div class="card" style="margin-top:16px">
+      <h3>Компоненты</h3>
+      {% for name, (state, info) in checks.items() %}
+      <div class="stat">
+        <span class="muted">{{ name }}</span>
+        <b>
+          <span class="tag {{ 'paid' if state == 'ok' else ('pending' if state == 'warn' else 'failed') }}">{{ state }}</span>
+          <span class="muted tiny" style="margin-left:8px">{{ info }}</span>
+        </b>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Счётчики</h3>
+      {% for name, val in counts.items() %}
+      <div class="stat"><span class="muted">{{ name }}</span><b>{{ val }}</b></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

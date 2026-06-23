@@ -1,0 +1,7 @@
+{
+  "name": "android",
+  "title": "Android (mipmap mdpi→xxxhdpi)",
+  "description": "Launcher-иконки Android по плотностям: 48/72/96/144/192 + Play Store 512.",
+  "export": { "sizes": [48, 72, 96, 144, 192, 512], "formats": ["png"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 8.0 }
+}

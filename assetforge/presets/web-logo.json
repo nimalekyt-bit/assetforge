@@ -1,0 +1,7 @@
+{
+  "name": "web-logo",
+  "title": "Web logo / Wordmark",
+  "description": "Широкое лого (вордмарк): по ширине, без вписывания в квадрат.",
+  "export": { "sizes": [256, 512, 1024, 2048], "formats": ["png", "webp", "svg"] },
+  "crop": { "fit": "width", "square": false, "padding_pct": 4.0 }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "steam",
+  "title": "Steam (capsule/community)",
+  "description": "Квадратные иконки сообщества Steam. Капсулы у Steam нестандартные — здесь квадратные ассеты.",
+  "export": { "sizes": [32, 64, 184, 256, 512], "formats": ["png"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 4.0 }
+}

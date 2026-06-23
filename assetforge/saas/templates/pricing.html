@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Тарифы — AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="sec-head center reveal">
+      <span class="eyebrow">Тарифы</span>
+      <h2 class="display">Выберите жар печи</h2>
+      <p>Начните бесплатно, апгрейдитесь когда вырастете. Отмена в любой момент.</p>
+    </div>
+
+    {% if message %}<div class="flash ok" style="max-width:560px;margin:0 auto 28px">{{ message }}</div>{% endif %}
+
+    <div class="plans">
+      {% for plan in plans %}
+      <div class="plan {% if plan.get('popular') %}popular{% endif %} reveal" style="transition-delay:{{ loop.index0 * 0.08 }}s">
+        {% if plan.get('popular') %}<span class="badge">Выбор мастеров</span>{% endif %}
+        <h3>{{ plan.title }}</h3>
+        <div class="tagline">{{ plan.tagline }}</div>
+        <div class="price">
+          {% if plan.price == 0 %}Бесплатно
+          {% elif currency == 'RUB' %}{{ plan.price_rub }}&nbsp;₽<small>/мес</small>
+          {% else %}${{ plan.price }}<small>/мес</small>{% endif %}
+        </div>
+        <ul>
+          {% for f in plan.features %}<li>{{ f }}</li>{% endfor %}
+        </ul>
+        {% if plan.price == 0 %}
+          <a class="btn block" href="/register"><span>Начать ковать</span></a>
+        {% elif user %}
+          <form method="post" action="/billing/checkout">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="plan_id" value="{{ plan.id }}">
+            <input type="text" class="field" style="width:100%;margin-bottom:10px" name="promo" placeholder="Промокод (необязательно)">
+            <button class="btn {% if plan.get('popular') %}primary{% endif %} block" type="submit"><span>Оформить {{ plan.title }}</span></button>
+          </form>
+        {% else %}
+          <a class="btn {% if plan.get('popular') %}primary{% endif %} block" href="/register?next=/pricing"><span>Выбрать {{ plan.title }}</span></a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <p class="center muted tiny" style="margin-top:26px">
+      {% if demo %}Демо-режим оплаты: реальные платежи не подключены — подписка активируется сразу для теста.
+      {% else %}Платёжный провайдер: <b style="color:var(--brass)">{{ provider }}</b>. Оплачивая, вы принимаете <a href="/offer">оферту</a>.{% endif %}
+    </p>
+  </div>
+</section>
+{% endblock %}

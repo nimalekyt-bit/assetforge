@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Промокоды — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Промокоды</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+
+    <div class="card" style="margin-top:16px">
+      <h3>Создать промокод</h3>
+      <form method="post" action="/admin/promos/create" class="admin-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="row">
+          <div class="field" style="margin:0"><label>Код</label><input type="text" name="code" required></div>
+          <div class="field" style="margin:0"><label>Тип</label>
+            <select name="kind">
+              <option value="percent">% скидка</option>
+              <option value="free_days">free дни</option>
+              <option value="grant_plan">выдать план</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0"><label>Значение</label><input name="value" type="number" step="1" value="30" style="width:90px"></div>
+          <div class="field" style="margin:0"><label>План</label>
+            <select name="plan_id">{% for pid, p in plans.items() if pid != 'free' %}<option value="{{ pid }}">{{ p.title }}</option>{% endfor %}</select>
+          </div>
+          <div class="field" style="margin:0"><label>Лимит (0=∞)</label><input name="max_uses" type="number" min="0" value="0" style="width:90px"></div>
+          <div class="field" style="margin:0"><label>Срок, дней (0=∞)</label><input name="expires_days" type="number" min="0" value="0" style="width:110px"></div>
+          <button class="btn sm primary" type="submit"><span>Создать</span></button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Все промокоды</h3>
+      <table>
+        <tr><th>Код</th><th>Тип</th><th>Значение</th><th>План</th><th>Исп.</th><th>Срок</th><th>Статус</th><th></th></tr>
+        {% for p in promos %}
+        <tr>
+          <td><b>{{ p.code }}</b></td>
+          <td>{{ p.kind }}</td>
+          <td>{{ '%.0f'|format(p.value) }}{{ '%' if p.kind == 'percent' else (' дн.' if p.kind != 'percent') }}</td>
+          <td>{{ p.plan_id }}</td>
+          <td>{{ p.used_count }}{{ '/' ~ p.max_uses if p.max_uses else '' }}</td>
+          <td>{{ p.expires_at.strftime('%d.%m.%Y') if p.expires_at else '∞' }}</td>
+          <td>{% if p.is_valid() %}<span class="tag paid">активен</span>{% else %}<span class="tag pending">неактивен</span>{% endif %}</td>
+          <td style="white-space:nowrap">
+            <form method="post" action="/admin/promos/{{ p.id }}/toggle" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit"><span>{{ 'Выкл' if p.active else 'Вкл' }}</span></button></form>
+            <form method="post" action="/admin/promos/{{ p.id }}/delete" style="display:inline"
+                  onsubmit="return confirm('Удалить промокод {{ p.code }}?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit" style="color:#f4b3a8"><span>×</span></button></form>
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="8" class="muted">Промокодов пока нет.</td></tr>{% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

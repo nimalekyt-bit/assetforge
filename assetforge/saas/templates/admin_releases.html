@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Релизы десктопа — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Релизы десктопа</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+
+    <div class="card" style="margin-top:16px">
+      <h3>Загрузить новый релиз</h3>
+      <p class="muted tiny" style="margin:6px 0 10px">Файл становится текущим — приложения получат его при следующей проверке обновлений.</p>
+      <form method="post" action="/admin/releases/upload" enctype="multipart/form-data" class="admin-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div class="row">
+          <div class="field"><label>Версия</label><input type="text" name="version" placeholder="0.2.0" required></div>
+          <div class="field" style="flex:1"><label>Файл .exe</label><input type="file" name="file" accept=".exe" required></div>
+        </div>
+        <div class="field" style="margin-top:8px"><label>Что нового</label><textarea name="notes" rows="2" placeholder="Заметки к релизу"></textarea></div>
+        <button class="btn primary" type="submit" style="margin-top:10px"><span>Загрузить релиз</span></button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Релизы</h3>
+      <table>
+        <tr><th>Версия</th><th>Размер</th><th>Загружен</th><th>Заметки</th><th>Статус</th><th></th></tr>
+        {% for r in releases %}
+        <tr>
+          <td><b>{{ r.version }}</b></td>
+          <td>{{ (r.size / 1048576) | round(1) }} МБ</td>
+          <td>{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td class="muted tiny">{{ r.notes[:80] }}</td>
+          <td>{% if r.is_current %}<span class="tag paid">текущий</span>{% else %}<span class="tag">архив</span>{% endif %}</td>
+          <td style="white-space:nowrap">
+            {% if not r.is_current %}
+            <form method="post" action="/admin/releases/{{ r.id }}/current" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm" type="submit"><span>Сделать текущим</span></button></form>
+            {% endif %}
+            <form method="post" action="/admin/releases/{{ r.id }}/delete" style="display:inline" onsubmit="return confirm('Удалить релиз {{ r.version }}?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit" style="color:#f4b3a8"><span>×</span></button></form>
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="6" class="muted">Релизов нет — раздаётся сборка из dist/ (фолбэк).</td></tr>{% endfor %}
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Статистика версий (по проверкам обновлений)</h3>
+      <table>
+        <tr><th>Версия</th><th>Проверок</th><th>Последняя</th></tr>
+        {% for v in versions %}
+        <tr><td>{{ v.version }}</td><td>{{ v.count }}</td><td>{{ v.last_seen.strftime('%d.%m.%Y %H:%M') }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">Пока нет данных.</td></tr>{% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

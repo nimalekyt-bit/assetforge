@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Ошибка {{ code }} — AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container center" style="max-width:620px">
+    <span class="eyebrow">Ошибка {{ code }}</span>
+    <h2 class="display heat-text" style="font-size:clamp(56px,12vw,120px);line-height:1">{{ code }}</h2>
+    <p class="lead" style="margin:10px auto 26px">
+      {% if code == 404 %}Такой страницы нет — возможно, ссылка устарела или в адресе опечатка.
+      {% else %}{{ detail or 'Что-то пошло не так.' }}{% endif %}
+    </p>
+    <div class="cta center" style="justify-content:center">
+      <a class="btn primary lg" href="/"><span>На главную</span></a>
+      <a class="btn lg" href="/pricing"><span>Тарифы</span></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

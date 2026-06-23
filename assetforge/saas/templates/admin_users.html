@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Пользователи — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Пользователи</h2>
+    {% include "_admin_nav.html" %}
+    {% if request.query_params.get('message') %}<div class="flash ok" style="margin-top:14px">{{ request.query_params.get('message') }}</div>{% endif %}
+
+    <div class="seg-tabs">
+      {% set segs = [('', 'Все'), ('paid', 'Платные'), ('free', 'Free'), ('expiring', 'Истекают'), ('blocked', 'Заблок.'), ('staff', 'Сотрудники')] %}
+      {% for sv, sl in segs %}
+        <a href="/admin/users?segment={{ sv }}" class="{{ 'on' if segment == sv }}">{{ sl }}</a>
+      {% endfor %}
+    </div>
+
+    <form method="get" action="/admin/users" class="admin-filter">
+      <input type="hidden" name="segment" value="{{ segment }}">
+      <input type="text" name="q" value="{{ q }}" placeholder="Поиск по email или имени">
+      <select name="plan">
+        <option value="">Все тарифы</option>
+        {% for pid, p in plans.items() %}<option value="{{ pid }}" {{ 'selected' if plan == pid }}>{{ p.title }}</option>{% endfor %}
+      </select>
+      <button class="btn sm" type="submit"><span>Найти</span></button>
+      <a class="btn sm ghost" href="/admin/export/users.csv"><span>CSV</span></a>
+    </form>
+
+    <form method="post" action="/admin/users/bulk" id="bulkForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="ids" id="bulkIds">
+      <div class="bulk-bar">
+        <span class="muted tiny">Массово к выбранным:</span>
+        <select name="plan_id">{% for pid, p in plans.items() if pid != 'free' %}<option value="{{ pid }}">{{ p.title }}</option>{% endfor %}</select>
+        <input type="number" name="days" value="30" min="1" style="width:80px" title="дней">
+        <button class="btn sm" name="action" value="grant_plan" type="submit"><span>Выдать тариф</span></button>
+        <button class="btn sm" name="action" value="reset_quota" type="submit"><span>Сброс квоты</span></button>
+        <button class="btn sm" name="action" value="block" type="submit"><span>Блок</span></button>
+        <button class="btn sm" name="action" value="unblock" type="submit"><span>Разблок</span></button>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <table>
+          <tr><th><input type="checkbox" id="checkAll"></th><th>ID</th><th>Email</th><th>Имя</th><th>Тариф</th><th>До</th><th>Статус</th><th>Рег.</th></tr>
+          {% for u in users %}
+          <tr>
+            <td><input type="checkbox" class="rowchk" value="{{ u.id }}"></td>
+            <td>{{ u.id }}</td>
+            <td><a href="/admin/users/{{ u.id }}">{{ u.email }}</a></td>
+            <td>{{ u.name or '—' }}</td>
+            <td><span class="tag {{ 'paid' if u.effective_plan() != 'free' }}">{{ u.effective_plan() }}</span></td>
+            <td>{{ u.plan_until.strftime('%d.%m.%Y') if u.plan_until else '—' }}</td>
+            <td>{% if not u.is_active %}<span class="tag failed">заблок.</span>{% elif u.is_admin %}<span class="tag paid">{{ u.role }}</span>{% else %}<span class="tag">актив.</span>{% endif %}</td>
+            <td>{{ u.created_at.strftime('%d.%m.%Y') }}</td>
+          </tr>
+          {% else %}<tr><td colspan="8" class="muted">Ничего не найдено.</td></tr>{% endfor %}
+        </table>
+      </div>
+    </form>
+
+    {% if pg.pages > 1 %}
+    <div class="pager">
+      {% if pg.has_prev %}<a class="btn sm" href="/admin/users?segment={{ segment }}&q={{ q }}&plan={{ plan }}&page={{ pg.page - 1 }}"><span>← Назад</span></a>{% endif %}
+      <span class="muted tiny">Стр. {{ pg.page }} из {{ pg.pages }} · всего {{ pg.total }}</span>
+      {% if pg.has_next %}<a class="btn sm" href="/admin/users?segment={{ segment }}&q={{ q }}&plan={{ plan }}&page={{ pg.page + 1 }}"><span>Вперёд →</span></a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+<script>
+(function(){
+  var all = document.getElementById("checkAll");
+  if (all) all.addEventListener("change", function(){
+    document.querySelectorAll(".rowchk").forEach(function(c){ c.checked = all.checked; });
+  });
+  document.getElementById("bulkForm").addEventListener("submit", function(){
+    var ids = [].slice.call(document.querySelectorAll(".rowchk:checked")).map(c=>c.value);
+    document.getElementById("bulkIds").value = ids.join(",");
+  });
+})();
+</script>
+{% endblock %}

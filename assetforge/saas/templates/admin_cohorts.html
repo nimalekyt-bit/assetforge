@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Когорты — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Когорты по месяцу регистрации</h2>
+    {% include "_admin_nav.html" %}
+    <p class="muted tiny" style="margin-top:8px">Сколько из зарегистрировавшихся в каждом месяце сейчас платят (конверсия когорты).</p>
+
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>Месяц</th><th>Регистраций</th><th>Платят сейчас</th><th>Конверсия</th><th></th></tr>
+        {% for r in rows %}
+        <tr>
+          <td><b>{{ r.month }}</b></td>
+          <td>{{ r.signups }}</td>
+          <td>{{ r.paying }}</td>
+          <td>{{ r.conversion }}%</td>
+          <td style="width:40%">
+            <div class="bar" style="margin:0"><i style="width:{{ r.conversion }}%"></i></div>
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="5" class="muted">Недостаточно данных.</td></tr>{% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

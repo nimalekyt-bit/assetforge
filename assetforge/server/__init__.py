@@ -1,0 +1,1 @@
+"""HTTP-сервер AssetForge (FastAPI)."""

@@ -1,0 +1,7 @@
+{
+  "name": "launcher",
+  "title": "Launcher / Desktop app",
+  "description": "Иконка для лаунчера/exe: крупные размеры + .ico и .icns.",
+  "export": { "sizes": [256, 512, 1024], "formats": ["png", "ico", "icns"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 6.0 }
+}

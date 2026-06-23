@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AssetForge — Кузница идеальных ассетов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap&subset=cyrillic,latin" rel="stylesheet">
+<style>
+  :root{
+    --coal-900:#080605;
+    --coal-850:#0b0907;
+    --coal-800:#100c0a;
+    --coal-700:#171210;
+    --ash:#1e1714;
+    --ash-line:#2a211c;
+    --ember:#ff6a1a;
+    --ember-bright:#ff924a;
+    --flame:#ff3f0d;
+    --brass:#d6a35c;
+    --brass-light:#f0cd8f;
+    --smoke:#c4b4a6;
+    --smoke-dim:#8c7d70;
+    --smoke-faint:#5f534a;
+    --steel:#3a302a;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --shadow-deep:0 40px 80px -30px rgba(0,0,0,.85);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+
+  body{
+    font-family:'Manrope',sans-serif;
+    background:var(--coal-900);
+    color:var(--smoke);
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+
+  /* ---- Atmosphere layers ---- */
+  .bg-field{position:fixed;inset:0;z-index:-3;pointer-events:none;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(255,90,20,.18), transparent 55%),
+      radial-gradient(80% 60% at 12% 8%, rgba(214,163,92,.10), transparent 60%),
+      radial-gradient(90% 70% at 88% 18%, rgba(255,63,13,.10), transparent 60%),
+      radial-gradient(140% 120% at 50% 120%, rgba(255,106,26,.14), transparent 55%),
+      linear-gradient(180deg,var(--coal-850),var(--coal-900) 40%,#060403);
+  }
+  .bg-heat{position:fixed;inset:0;z-index:-2;pointer-events:none;mix-blend-mode:screen;opacity:.5;
+    background:radial-gradient(60% 50% at 50% 0%, rgba(255,120,40,.22), transparent 70%);
+    animation:breathe 7s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.38;transform:scale(1)}50%{opacity:.6;transform:scale(1.05)}}
+
+  #sparks{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+  .grain{position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  ::selection{background:rgba(255,106,26,.32);color:#fff}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+  /* ---- Typography ---- */
+  .display{font-family:'Saira Condensed',sans-serif;font-weight:800;line-height:.92;letter-spacing:.5px;text-transform:uppercase;color:#f3e8dc;}
+  .eyebrow{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.32em;font-size:13px;color:var(--brass);}
+
+  .heat-text{
+    background:linear-gradient(180deg,#fff4e6 0%,var(--brass-light) 38%,var(--ember) 78%,var(--flame) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 4px 28px rgba(255,90,20,.35));
+  }
+
+  /* ---- Buttons: molten iron ---- */
+  .btn{position:relative;display:inline-flex;align-items:center;gap:10px;
+    font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+    font-size:16px;padding:16px 30px;border-radius:11px;cursor:pointer;border:none;
+    text-decoration:none;overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s var(--ease);isolation:isolate;}
+  .btn span{position:relative;z-index:2}
+  .btn::before{content:"";position:absolute;inset:0;z-index:0;transition:opacity .35s}
+  .btn::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;z-index:1;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+    transform:skewX(-18deg);transition:left .7s var(--ease);}
+  .btn:hover::after{left:160%}
+
+  .btn-forge{color:#2a0f02;
+    background:linear-gradient(180deg,#ffcf8f 0%,var(--ember-bright) 30%,var(--ember) 60%,var(--flame) 100%);
+    box-shadow:0 0 0 1px rgba(255,180,120,.5) inset,0 1px 0 rgba(255,255,255,.6) inset,
+      0 14px 36px -10px rgba(255,80,20,.65),0 0 40px -6px rgba(255,90,20,.45);}
+  .btn-forge:hover{transform:translateY(-3px);
+    box-shadow:0 0 0 1px rgba(255,200,150,.7) inset,0 1px 0 rgba(255,255,255,.8) inset,
+      0 20px 48px -10px rgba(255,80,20,.8),0 0 70px -4px rgba(255,90,20,.7);}
+
+  .btn-steel{color:#f1e6d9;background:linear-gradient(180deg,#241c18,#150f0c);
+    box-shadow:0 0 0 1px var(--ash-line) inset,0 1px 0 rgba(255,255,255,.06) inset,0 12px 30px -14px #000;}
+  .btn-steel:hover{transform:translateY(-3px);color:#fff;
+    box-shadow:0 0 0 1px rgba(214,163,92,.45) inset,0 1px 0 rgba(255,255,255,.1) inset,0 16px 34px -14px #000;}
+
+  /* ---- Header ---- */
+  header{position:sticky;top:0;z-index:100;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:linear-gradient(180deg,rgba(8,6,5,.86),rgba(8,6,5,.45));
+    border-bottom:1px solid var(--ash-line);}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+  .brand .mark{width:34px;height:34px;filter:drop-shadow(0 0 12px rgba(255,106,26,.6))}
+  .brand b{font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:23px;letter-spacing:.06em;
+    text-transform:uppercase;color:#f3e8dc;}
+  .brand b i{color:var(--ember);font-style:normal}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{color:var(--smoke-dim);text-decoration:none;font-size:15px;font-weight:600;transition:color .25s;position:relative}
+  .nav-links a:hover{color:#f3e8dc}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;width:0;height:2px;
+    background:linear-gradient(90deg,var(--ember),var(--brass));transition:width .3s var(--ease)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{padding:10px 20px;font-size:14px}
+  .burger{display:none}
+
+  /* ---- Hero ---- */
+  .hero{position:relative;padding:96px 0 90px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  .anim{opacity:0;transform:translateY(28px);animation:rise .9s var(--ease) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  .hero-badge{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border-radius:100px;
+    border:1px solid var(--ash-line);background:rgba(20,15,12,.6);font-size:13px;font-weight:600;color:var(--smoke);
+    margin-bottom:26px}
+  .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ember);
+    box-shadow:0 0 12px 2px rgba(255,106,26,.9);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  h1{font-size:clamp(48px,6.6vw,90px);margin-bottom:24px}
+  h1 .l2{display:block}
+  .hero p.lead{font-size:19px;line-height:1.62;color:var(--smoke);max-width:540px;margin-bottom:36px}
+  .hero p.lead b{color:#efe2d4;font-weight:700}
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .hero-meta{display:flex;gap:26px;margin-top:34px;flex-wrap:wrap}
+  .hero-meta div{font-size:13px;color:var(--smoke-dim)}
+  .hero-meta b{display:block;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:30px;color:#f3e8dc;
+    letter-spacing:.02em;line-height:1}
+  .hero-meta b em{color:var(--ember);font-style:normal}
+
+  /* ---- Hero forge plate visual ---- */
+  .plate{position:relative;border-radius:22px;padding:26px;
+    background:linear-gradient(160deg,#1b1411,#0d0a08);
+    border:1px solid var(--ash-line);box-shadow:var(--shadow-deep),0 0 80px -30px rgba(255,90,20,.5);
+    animation:rise 1s var(--ease) .25s forwards;opacity:0;transform:translateY(28px)}
+  .plate::before{content:"";position:absolute;inset:0;border-radius:22px;padding:1px;pointer-events:none;
+    background:linear-gradient(160deg,rgba(255,150,80,.5),transparent 40%,transparent 70%,rgba(214,163,92,.3));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .plate-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .plate-top .ttl{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.18em;
+    font-size:12px;color:var(--smoke-dim)}
+  .plate-dots{display:flex;gap:7px}
+  .plate-dots i{width:10px;height:10px;border-radius:50%;background:var(--steel)}
+  .plate-dots i:first-child{background:var(--ember)}
+
+  .stage{position:relative;border-radius:14px;height:230px;overflow:hidden;
+    background-image:
+      linear-gradient(45deg,#1a1512 25%,transparent 25%),
+      linear-gradient(-45deg,#1a1512 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#1a1512 75%),
+      linear-gradient(-45deg,transparent 75%,#1a1512 75%);
+    background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0;
+    background-color:#0f0c0a;border:1px solid var(--ash-line)}
+  .ingot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .ingot .core{width:120px;height:120px;border-radius:26px;position:relative;
+    background:radial-gradient(circle at 38% 32%,#fff1df,var(--brass-light) 22%,var(--ember) 58%,var(--flame) 100%);
+    box-shadow:0 0 60px 6px rgba(255,90,20,.55),0 0 0 1px rgba(255,200,150,.4) inset;
+    animation:glowPulse 3.2s ease-in-out infinite;display:flex;align-items:center;justify-content:center}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 50px 4px rgba(255,90,20,.45),0 0 0 1px rgba(255,200,150,.4) inset}
+    50%{box-shadow:0 0 80px 12px rgba(255,90,20,.75),0 0 0 1px rgba(255,220,180,.6) inset}}
+  .ingot .core svg{width:62px;height:62px;filter:drop-shadow(0 2px 6px rgba(80,20,0,.5))}
+  .scan{position:absolute;left:0;right:0;height:42px;
+    background:linear-gradient(180deg,transparent,rgba(255,150,80,.22),transparent);
+    animation:scan 3.4s ease-in-out infinite}
+  @keyframes scan{0%{top:-42px}100%{top:230px}}
+
+  .chips{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .chip{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.05em;
+    padding:7px 12px;border-radius:8px;color:var(--smoke);background:rgba(255,255,255,.03);
+    border:1px solid var(--ash-line);transition:.3s var(--ease)}
+  .chip.on{color:#2a0f02;background:linear-gradient(180deg,var(--ember-bright),var(--flame));border-color:transparent;
+    box-shadow:0 6px 18px -8px rgba(255,80,20,.7)}
+  .plate-foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;
+    padding-top:16px;border-top:1px solid var(--ash-line);font-size:13px;color:var(--smoke-dim)}
+  .plate-foot .ok{color:var(--brass);font-weight:700}
+
+  /* ---- Section heading ---- */
+  .sec{padding:96px 0;position:relative}
+  .sec-head{max-width:680px;margin-bottom:56px}
+  .sec-head h2{font-size:clamp(34px,4.4vw,58px);margin:14px 0 16px}
+  .sec-head p{font-size:18px;color:var(--smoke-dim)}
+
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---- Features ---- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{position:relative;padding:30px 28px 32px;border-radius:18px;overflow:hidden;
+    background:linear-gradient(165deg,rgba(30,23,20,.85),rgba(13,10,8,.85));
+    border:1px solid var(--ash-line);transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,150,80,.5),transparent);opacity:0;transition:opacity .4s}
+  .card::after{content:"";position:absolute;inset:0;border-radius:18px;opacity:0;transition:opacity .45s;pointer-events:none;
+    background:radial-gradient(70% 60% at 50% 0%,rgba(255,106,26,.14),transparent 70%)}
+  .card:hover{transform:translateY(-8px);border-color:rgba(214,163,92,.3);
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.9),0 0 50px -20px rgba(255,90,20,.5)}
+  .card:hover::before{opacity:1}
+  .card:hover::after{opacity:1}
+  .card .ico{width:56px;height:56px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    margin-bottom:20px;font-size:25px;position:relative;
+    background:linear-gradient(160deg,#241a14,#120d0a);border:1px solid var(--ash-line);
+    box-shadow:0 8px 20px -10px #000}
+  .card:hover .ico{box-shadow:0 8px 20px -8px #000,0 0 28px -6px rgba(255,90,20,.6)}
+  .card h3{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    font-size:23px;color:#f1e6da;margin-bottom:10px}
+  .card p{font-size:15px;color:var(--smoke-dim);line-height:1.6}
+  .card .num{position:absolute;top:22px;right:24px;font-family:'Saira Condensed',sans-serif;font-weight:800;
+    font-size:15px;color:var(--smoke-faint);letter-spacing:.1em}
+  .card p b{color:var(--brass);font-weight:600}
+
+  /* ---- Pricing ---- */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+  .tier{position:relative;padding:34px 30px;border-radius:20px;display:flex;flex-direction:column;
+    background:linear-gradient(170deg,rgba(26,20,17,.8),rgba(12,9,7,.9));
+    border:1px solid var(--ash-line);transition:transform .4s var(--ease)}
+  .tier:hover{transform:translateY(-6px)}
+  .tier.feature{border-color:transparent;background:linear-gradient(170deg,#1f140d,#0c0907);
+    box-shadow:0 40px 90px -36px rgba(255,80,20,.6),0 0 0 1px rgba(255,150,80,.4) inset}
+  .tier.feature::before{content:"";position:absolute;inset:0;border-radius:20px;padding:1px;pointer-events:none;
+    background:linear-gradient(160deg,var(--ember),var(--brass),transparent 60%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .tier .flag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+    font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.16em;font-size:11px;
+    padding:6px 16px;border-radius:100px;color:#2a0f02;
+    background:linear-gradient(180deg,var(--ember-bright),var(--flame));box-shadow:0 8px 20px -8px rgba(255,80,20,.8)}
+  .tier .tname{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+    font-size:16px;color:var(--brass);margin-bottom:14px}
+  .tier .cost{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+  .tier .cost b{font-family:'Saira Condensed',sans-serif;font-weight:900;font-size:52px;color:#f3e8dc;line-height:1}
+  .tier .cost span{font-size:15px;color:var(--smoke-dim)}
+  .tier .tdesc{font-size:14px;color:var(--smoke-dim);margin-bottom:24px;min-height:42px}
+  .tier ul{list-style:none;margin-bottom:28px;flex:1}
+  .tier li{font-size:15px;color:var(--smoke);padding:9px 0 9px 28px;position:relative;border-top:1px solid rgba(255,255,255,.04)}
+  .tier li:first-child{border-top:none}
+  .tier li::before{content:"";position:absolute;left:2px;top:15px;width:12px;height:12px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,var(--brass-light),var(--ember));
+    box-shadow:0 0 8px rgba(255,106,26,.6)}
+  .tier .btn{width:100%;justify-content:center}
+
+  /* ---- Final CTA ---- */
+  .final{position:relative;text-align:center;padding:120px 0;overflow:hidden}
+  .final::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:680px;height:680px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,90,20,.28),transparent 62%);filter:blur(20px);
+    animation:breathe 6s ease-in-out infinite}
+  .final h2{font-size:clamp(44px,7vw,104px);margin-bottom:22px;position:relative}
+  .final p{font-size:19px;color:var(--smoke);max-width:560px;margin:0 auto 38px;position:relative}
+  .final .hero-cta{justify-content:center;position:relative}
+
+  .molten-rule{height:2px;width:100%;border:none;margin:0;
+    background:linear-gradient(90deg,transparent,var(--ember),var(--brass-light),var(--ember),transparent);
+    opacity:.5}
+
+  /* ---- Footer ---- */
+  footer{padding:64px 0 40px;border-top:1px solid var(--ash-line);background:linear-gradient(180deg,transparent,rgba(255,90,20,.04))}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+  .foot-brand p{font-size:14px;color:var(--smoke-dim);max-width:300px;margin-top:16px}
+  .foot-col h4{font-family:'Saira Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+    font-size:13px;color:#f1e6da;margin-bottom:16px}
+  .foot-col a{display:block;color:var(--smoke-dim);text-decoration:none;font-size:14px;padding:6px 0;transition:color .25s}
+  .foot-col a:hover{color:var(--brass)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+    padding-top:28px;border-top:1px solid var(--ash-line);font-size:13px;color:var(--smoke-faint)}
+
+  /* ---- Responsive ---- */
+  @media(max-width:920px){
+    .hero-grid{grid-template-columns:1fr;gap:44px}
+    .plate{max-width:480px}
+    .feat-grid,.price-grid{grid-template-columns:1fr 1fr}
+    .nav-links{display:none}
+    .foot-grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:560px){
+    .wrap{padding:0 18px}
+    .hero{padding:60px 0 64px}
+    .sec{padding:70px 0}
+    .feat-grid,.price-grid{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:28px}
+    .foot-brand{grid-column:1/-1}
+    .hero-cta .btn{flex:1;justify-content:center}
+    .hero-meta{gap:20px}
+    .nav-cta{display:none}
+    .tier.feature{order:-1}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+    .anim,.plate{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="bg-field"></div>
+<div class="bg-heat"></div>
+<canvas id="sparks"></canvas>
+<div class="grain"></div>
+
+<!-- shared spark mark -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="emberGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff1df"/><stop offset=".45" stop-color="#f0cd8f"/>
+    <stop offset="1" stop-color="#ff3f0d"/>
+  </linearGradient>
+</defs></svg>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 32 32" fill="none">
+        <path d="M16 1 L19 11 L29 14 L19 17 L16 31 L13 17 L3 14 L13 11 Z" fill="url(#emberGrad)"/>
+        <path d="M16 7 L17.4 12.4 L23 14 L17.4 15.6 L16 23 L14.6 15.6 L9 14 L14.6 12.4 Z" fill="#0b0907" opacity=".25"/>
+      </svg>
+      <b>ASSET<i>FORGE</i></b>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Возможности</a>
+      <a href="#how">Процесс</a>
+      <a href="#pricing">Тарифы</a>
+      <a href="#" class="btn btn-forge nav-cta"><span>Разжечь</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="hero-badge anim" style="animation-delay:.05s">
+          <span class="dot"></span> Офлайн .exe и онлайн-сервис · Python не нужен
+        </div>
+        <h1 class="display anim" style="animation-delay:.15s">
+          Сырьё в печь —<span class="l2 heat-text">идеальный набор</span><span class="l2">из горнила.</span>
+        </h1>
+        <p class="lead anim" style="animation-delay:.28s">
+          AssetForge снимает фон начисто, сам находит контент и <b>отливает ваш логотип во все размеры
+          от 16 до 512&nbsp;px</b>. PNG, ICO, ICNS, WebP — готовый ZIP с контрольным листом за один проход.
+        </p>
+        <div class="hero-cta anim" style="animation-delay:.4s">
+          <a href="#pricing" class="btn btn-forge"><span>Разжечь кузницу — бесплатно</span></a>
+          <a href="#" class="btn btn-steel"><span>Скачать .exe ↓</span></a>
+        </div>
+        <div class="hero-meta anim" style="animation-delay:.52s">
+          <div><b>16<em>→</em>512</b>px без потери чёткости</div>
+          <div><b>6</b>форматов экспорта</div>
+          <div><b>0₽</b>чтобы начать ковать</div>
+        </div>
+      </div>
+
+      <div class="plate">
+        <div class="plate-top">
+          <span class="ttl">Горнило · предпросмотр</span>
+          <span class="plate-dots"><i></i><i></i><i></i></span>
+        </div>
+        <div class="stage">
+          <div class="scan"></div>
+          <div class="ingot"><div class="core">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M16 2 L19 11 L29 14 L19 17 L16 30 L13 17 L3 14 L13 11 Z" fill="#2a0f02" opacity=".55"/>
+            </svg>
+          </div></div>
+        </div>
+        <div class="chips">
+          <span class="chip">16</span><span class="chip on">32</span><span class="chip">48</span>
+          <span class="chip on">64</span><span class="chip">128</span><span class="chip">256</span>
+          <span class="chip on">512</span><span class="chip">ICO</span><span class="chip">ICNS</span>
+        </div>
+        <div class="plate-foot">
+          <span>despill · мягкие края · Lanczos</span>
+          <span class="ok">● готово к отливке</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="molten-rule">
+
+  <!-- FEATURES -->
+  <section class="sec" id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Что умеет горн</span>
+        <h2 class="display">Шесть ударов молота —<br>и ассет готов</h2>
+        <p>Каждый этап продуман до пикселя. Никакой ручной возни в редакторе — только чистый результат.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="card reveal">
+          <span class="num">01</span>
+          <div class="ico">🜂</div>
+          <h3>Фон — начисто</h3>
+          <p>Прозрачный, белый, однотонный, зелёный и синий хромакей. Сложный фон снимает <b>AI&nbsp;(rembg)</b>.
+          Мягкие края и despill убирают цветной ореол от хромакея.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.08s">
+          <span class="num">02</span>
+          <div class="ico">⛏</div>
+          <h3>Умная обрезка</h3>
+          <p>Сам находит контент и <b>разделяет несколько лого в одном файле</b> через XY-cut. Паддинг,
+          вписывание в квадрат или по ширине, аккуратное выравнивание.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.16s">
+          <span class="num">03</span>
+          <div class="ico">🔥</div>
+          <h3>Все размеры</h3>
+          <p>От <b>16 до 512&nbsp;px</b> для иконок плюс крупные лого. Качественный ресемплинг Lanczos
+          держит чёткость даже на крошечных 16&nbsp;px.</p>
+        </div>
+        <div class="card reveal">
+          <span class="num">04</span>
+          <div class="ico">📦</div>
+          <h3>Форматы и упаковка</h3>
+          <p>PNG, многоразмерный ICO, ICNS для macOS, WebP, SVG-обёртка. На выходе — <b>готовый ZIP
+          и контрольный лист</b> со всеми размерами и подписями.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.08s">
+          <span class="num">05</span>
+          <div class="ico">👁</div>
+          <h3>Живой предпросмотр</h3>
+          <p>Видно результат до экспорта — <b>на светлом, тёмном и шахматном фоне</b>. Оцениваете края
+          и прозрачность, пока металл ещё горячий.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.16s">
+          <span class="num">06</span>
+          <div class="ico">⚙</div>
+          <h3>Batch и пресеты</h3>
+          <p>Обработка папок целиком и готовые пресеты: <b>favicon, Steam, Discord, Android, iOS,
+          Windows Store</b>. Один клик — и вся партиция откована.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head reveal" style="max-width:760px">
+        <span class="eyebrow">От сырья до набора</span>
+        <h2 class="display">Три температуры — один проход</h2>
+      </div>
+      <div class="feat-grid">
+        <div class="card reveal">
+          <span class="num">↘</span>
+          <div class="ico">🜂</div>
+          <h3>Загрузка</h3>
+          <p>Бросьте логотип, картинку или целую папку. AssetForge разбирает <b>что есть фон,
+          а что — содержание</b>.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.1s">
+          <span class="num">→</span>
+          <div class="ico">⚒</div>
+          <h3>Ковка</h3>
+          <p>Снятие фона, despill, умная обрезка, нарезка во все размеры и форматы — <b>автоматически
+          и за секунды</b>.</p>
+        </div>
+        <div class="card reveal" style="transition-delay:.2s">
+          <span class="num">↗</span>
+          <div class="ico">✦</div>
+          <h3>Отливка</h3>
+          <p>Забираете ZIP с контактным листом. <b>Чисто, чётко, по пресету</b> — хоть в репозиторий,
+          хоть в стор.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="molten-rule">
+
+  <!-- PRICING -->
+  <section class="sec" id="pricing">
+    <div class="wrap">
+      <div class="sec-head reveal" style="text-align:center;margin-left:auto;margin-right:auto">
+        <span class="eyebrow">Тарифы</span>
+        <h2 class="display">Выберите жар печи</h2>
+        <p style="margin-left:auto;margin-right:auto">Начните бесплатно. Разогревайтесь, когда ассетов станет больше.</p>
+      </div>
+      <div class="price-grid">
+        <div class="tier reveal">
+          <div class="tname">Free</div>
+          <div class="cost"><b>0</b><span>₽ / навсегда</span></div>
+          <div class="tdesc">Чтобы попробовать горн и оценить края.</div>
+          <ul>
+            <li>20 экспортов в месяц</li>
+            <li>Размеры до 512&nbsp;px</li>
+            <li>PNG, ICO, WebP</li>
+            <li>Удаление фона и обрезка</li>
+            <li>Живой предпросмотр</li>
+          </ul>
+          <a href="#" class="btn btn-steel"><span>Начать ковать</span></a>
+        </div>
+
+        <div class="tier feature reveal" style="transition-delay:.08s">
+          <span class="flag">Выбор мастеров</span>
+          <div class="tname" style="color:var(--ember-bright)">Pro</div>
+          <div class="cost"><b>490</b><span>₽ / мес</span></div>
+          <div class="tdesc">Полная мощь кузницы без лимитов.</div>
+          <ul>
+            <li>Безлимитные экспорты</li>
+            <li>Все форматы + ICNS и SVG</li>
+            <li>AI-удаление сложного фона</li>
+            <li>Batch-обработка папок</li>
+            <li>Все пресеты под платформы</li>
+            <li>Контрольный лист в ZIP</li>
+          </ul>
+          <a href="#" class="btn btn-forge"><span>Разогреть до Pro</span></a>
+        </div>
+
+        <div class="tier reveal" style="transition-delay:.16s">
+          <div class="tname">Business</div>
+          <div class="cost"><b>от&nbsp;2k</b><span>₽ / мес</span></div>
+          <div class="tdesc">Для команд, что куют ассеты потоком.</div>
+          <ul>
+            <li>Всё из Pro для команды</li>
+            <li>Несколько рабочих мест</li>
+            <li>Приоритетная поддержка</li>
+            <li>Корпоративная лицензия .exe</li>
+            <li>Общие пресеты команды</li>
+          </ul>
+          <a href="#" class="btn btn-steel"><span>Обсудить</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final">
+    <div class="wrap">
+      <h2 class="display heat-text reveal">Пора ковать.</h2>
+      <p class="reveal">Бросьте первый файл в горнило — и заберите идеальный набор иконок через несколько секунд.</p>
+      <div class="hero-cta reveal">
+        <a href="#" class="btn btn-forge"><span>Разжечь кузницу — бесплатно</span></a>
+        <a href="#" class="btn btn-steel"><span>Скачать .exe ↓</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top">
+          <svg class="mark" viewBox="0 0 32 32" fill="none">
+            <path d="M16 1 L19 11 L29 14 L19 17 L16 31 L13 17 L3 14 L13 11 Z" fill="url(#emberGrad)"/>
+          </svg>
+          <b>ASSET<i>FORGE</i></b>
+        </a>
+        <p>Кузница ассетов. Превращаем сырьё в идеальный набор иконок — точно, чисто, в любом размере.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Продукт</h4>
+        <a href="#features">Возможности</a>
+        <a href="#how">Как работает</a>
+        <a href="#pricing">Тарифы</a>
+        <a href="#">Скачать .exe</a>
+      </div>
+      <div class="foot-col">
+        <h4>Ресурсы</h4>
+        <a href="#">Документация</a>
+        <a href="#">Пресеты</a>
+        <a href="#">Что нового</a>
+        <a href="#">Поддержка</a>
+      </div>
+      <div class="foot-col">
+        <h4>Компания</h4>
+        <a href="#">О кузнице</a>
+        <a href="#">Контакты</a>
+        <a href="#">Лицензия</a>
+        <a href="#">Конфиденциальность</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 AssetForge — выковано с жаром.</span>
+      <span>Работает офлайн и онлайн · Windows · macOS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ---- Scroll reveal ---- */
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+  },{threshold:.16,rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ---- Ember sparks canvas ---- */
+  const cv = document.getElementById('sparks');
+  const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W,H,parts=[];
+  function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+
+  function spawn(){
+    return {
+      x: Math.random()*W,
+      y: H + Math.random()*40,
+      r: Math.random()*1.8+.6,
+      vy: -(Math.random()*0.9+0.35),
+      vx: (Math.random()-0.5)*0.5,
+      life: 0,
+      max: Math.random()*260+160,
+      hue: 18 + Math.random()*24,
+      flick: Math.random()*Math.PI*2
+    };
+  }
+  const COUNT = innerWidth < 600 ? 36 : 80;
+  if(!reduce){ for(let i=0;i<COUNT;i++){ const p=spawn(); p.y=Math.random()*H; p.life=Math.random()*p.max; parts.push(p);} }
+
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    for(let p of parts){
+      p.life++; p.x+=p.vx; p.y+=p.vy; p.vx+=(Math.random()-0.5)*0.04; p.flick+=0.2;
+      if(p.life>p.max || p.y<-10){ Object.assign(p, spawn()); }
+      const t = p.life/p.max;
+      const a = (Math.sin(p.flick)*0.25+0.6) * (1-t) * 0.9;
+      const r = p.r*(1+Math.sin(p.flick)*0.15);
+      const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*6);
+      g.addColorStop(0,`hsla(${p.hue+22},100%,80%,${a})`);
+      g.addColorStop(.4,`hsla(${p.hue},100%,55%,${a*0.6})`);
+      g.addColorStop(1,`hsla(${p.hue},100%,45%,0)`);
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.arc(p.x,p.y,r*6,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalCompositeOperation='source-over';
+    requestAnimationFrame(tick);
+  }
+  if(!reduce) tick();
+
+  /* ---- Live chip flicker in preview plate ---- */
+  if(!reduce){
+    const chips=[...document.querySelectorAll('.chips .chip')];
+    setInterval(()=>{
+      chips.forEach(c=>{ if(Math.random()<0.18) c.classList.toggle('on'); });
+    },1100);
+  }
+
+  /* ---- Parallax tilt on forge plate ---- */
+  const plate=document.querySelector('.plate');
+  if(plate && !reduce){
+    const host=document.querySelector('.hero-grid');
+    host.addEventListener('mousemove',e=>{
+      const r=host.getBoundingClientRect();
+      const rx=((e.clientY-r.top)/r.height-.5)*-5;
+      const ry=((e.clientX-r.left)/r.width-.5)*6;
+      plate.style.transform=`translateY(0) perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    host.addEventListener('mouseleave',()=>{ plate.style.transform=''; });
+  }
+</script>
+</body>
+</html>

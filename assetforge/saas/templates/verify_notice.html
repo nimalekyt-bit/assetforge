@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Подтвердите email — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal" style="text-align:center">
+  <span class="eyebrow">Почти готово</span>
+  <h2 class="display">Подтвердите email</h2>
+  {% if resent %}<div class="flash ok" style="margin:16px 0">Письмо отправлено повторно.</div>{% endif %}
+  <p class="muted" style="margin:14px 0 20px">
+    Мы отправили ссылку для подтверждения на <b style="color:var(--bone)">{{ email }}</b>.
+    Откройте письмо и перейдите по ссылке, чтобы начать ковать ассеты.
+  </p>
+  <form method="post" action="/verify/resend">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn block" type="submit"><span>Отправить письмо ещё раз</span></button>
+  </form>
+  <p class="muted tiny" style="margin-top:14px">Не туда попало? Проверьте папку «Спам».</p>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{
+  "name": "ios",
+  "title": "iOS / iPadOS app icon",
+  "description": "Иконки приложения iOS: рабочие размеры + App Store 1024. iOS не любит прозрачность — вписываем по центру.",
+  "export": { "sizes": [40, 58, 60, 80, 87, 120, 152, 167, 180, 1024], "formats": ["png"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 0.0 }
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Бесплатно · без карты</span>
+  <h2 class="display">Разжечь кузницу</h2>
+  {% if error %}<div class="flash err" style="margin-top:16px">{{ error }}</div>{% endif %}
+  <form method="post" action="/register" style="margin-top:18px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ next or '/app' }}">
+    <input type="hidden" name="ref" value="{{ ref or '' }}">
+    <div class="field"><label>Имя</label><input name="name" type="text" placeholder="необязательно"></div>
+    <div class="field"><label>Email</label><input name="email" type="email" required autofocus></div>
+    <div class="field"><label>Пароль</label><input name="password" type="password" required minlength="6"></div>
+    <button class="btn primary block lg" type="submit"><span>Зарегистрироваться</span></button>
+  </form>
+  <p class="muted tiny center" style="margin-top:16px">Уже есть аккаунт? <a href="/login">Войти</a></p>
+</div>
+{% endblock %}

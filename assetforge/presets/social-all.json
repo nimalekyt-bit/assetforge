@@ -1,0 +1,20 @@
+{
+  "name": "social-all",
+  "title": "Соцсети — все форматы",
+  "description": "Готовые холсты под все площадки: OG, Twitter/X, Instagram, Stories, YouTube, LinkedIn, Facebook. Умный cover-кроп (saliency) держит важное в кадре, фон — авто по краю.",
+  "crop": {"fit": "contain", "square": false, "padding_pct": 3},
+  "export": {
+    "sizes": [],
+    "formats": [],
+    "make_contact_sheet": false,
+    "targets": [
+      {"name": "og-1200x630", "w": 1200, "h": 630, "fit": "cover", "bg": "auto"},
+      {"name": "twitter-1600x900", "w": 1600, "h": 900, "fit": "cover", "bg": "auto"},
+      {"name": "instagram-post-1080x1080", "w": 1080, "h": 1080, "fit": "cover", "bg": "auto"},
+      {"name": "instagram-story-1080x1920", "w": 1080, "h": 1920, "fit": "cover", "bg": "auto"},
+      {"name": "youtube-thumb-1280x720", "w": 1280, "h": 720, "fit": "cover", "bg": "auto"},
+      {"name": "linkedin-1200x627", "w": 1200, "h": 627, "fit": "cover", "bg": "auto"},
+      {"name": "facebook-cover-820x312", "w": 820, "h": 312, "fit": "cover", "bg": "auto"}
+    ]
+  }
+}

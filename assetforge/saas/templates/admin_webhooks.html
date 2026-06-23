@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Вебхуки — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Вебхуки платежей</h2>
+    {% include "_admin_nav.html" %}
+    <p class="muted tiny" style="margin-top:8px">Входящие уведомления платёжных провайдеров (для отладки).</p>
+
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>Время</th><th>Провайдер</th><th>Статус</th><th>Платёж</th><th>External ID</th><th>Детали</th></tr>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td>{{ r.provider }}</td>
+          <td><span class="tag {{ 'paid' if r.status == 'paid' else ('failed' if r.status in ('failed','error') else 'pending') }}">{{ r.status or '—' }}</span></td>
+          <td>{{ ('payment:' ~ r.payment_id) if r.payment_id else '—' }}</td>
+          <td class="muted">{{ r.external_id or '—' }}</td>
+          <td class="muted">{{ r.detail or '' }}</td>
+        </tr>
+        {% else %}<tr><td colspan="6" class="muted">Вебхуков ещё не было.</td></tr>{% endfor %}
+      </table>
+    </div>
+
+    {% if pg.pages > 1 %}
+    <div class="pager">
+      {% if pg.has_prev %}<a class="btn sm" href="/admin/webhooks?page={{ pg.page - 1 }}"><span>← Назад</span></a>{% endif %}
+      <span class="muted tiny">Стр. {{ pg.page }} из {{ pg.pages }} · всего {{ pg.total }}</span>
+      {% if pg.has_next %}<a class="btn sm" href="/admin/webhooks?page={{ pg.page + 1 }}"><span>Вперёд →</span></a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

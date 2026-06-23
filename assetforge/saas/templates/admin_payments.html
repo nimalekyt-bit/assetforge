@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Платежи — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Платежи</h2>
+    {% include "_admin_nav.html" %}
+
+    <form method="get" action="/admin/payments" class="admin-filter">
+      <select name="status">
+        {% for s in ['', 'pending', 'paid', 'failed', 'canceled'] %}
+        <option value="{{ s }}" {{ 'selected' if status == s }}>{{ s or 'Все статусы' }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn sm" type="submit"><span>Фильтр</span></button>
+      <a class="btn sm ghost" href="/admin/export/payments.csv"><span>CSV</span></a>
+    </form>
+
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>ID</th><th>User</th><th>Тариф</th><th>Сумма</th><th>Провайдер</th><th>Промо</th><th>Дата</th><th>Статус</th><th></th></tr>
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td><a href="/admin/users/{{ p.user_id }}">#{{ p.user_id }}</a></td>
+          <td>{{ p.plan_id }}</td>
+          <td>{{ '%.2f'|format(p.amount) }} {{ p.currency }}</td>
+          <td>{{ p.provider }}</td>
+          <td>{{ p.promo_code or '—' }}</td>
+          <td>{{ p.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td><span class="tag {{ p.status }}">{{ p.status }}</span></td>
+          <td style="white-space:nowrap">
+            {% if p.status == 'pending' %}
+            <form method="post" action="/admin/payment/{{ p.id }}/approve" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm" type="submit"><span>✓</span></button></form>
+            <form method="post" action="/admin/payment/{{ p.id }}/reject" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button class="btn sm ghost" type="submit" style="color:#f4b3a8"><span>×</span></button></form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="9" class="muted">Платежей нет.</td></tr>{% endfor %}
+      </table>
+    </div>
+
+    {% if pg.pages > 1 %}
+    <div class="pager">
+      {% if pg.has_prev %}<a class="btn sm" href="/admin/payments?status={{ status }}&page={{ pg.page - 1 }}"><span>← Назад</span></a>{% endif %}
+      <span class="muted tiny">Стр. {{ pg.page }} из {{ pg.pages }} · всего {{ pg.total }}</span>
+      {% if pg.has_next %}<a class="btn sm" href="/admin/payments?status={{ status }}&page={{ pg.page + 1 }}"><span>Вперёд →</span></a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

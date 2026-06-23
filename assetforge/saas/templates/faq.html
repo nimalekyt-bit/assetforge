@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Вопросы и ответы — AssetForge{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:820px">
+    <span class="eyebrow">Поддержка</span>
+    <h2 class="display">Частые вопросы</h2>
+    <p class="lead" style="margin-bottom:32px">Коротко о форматах, лимитах, оплате и офлайн-версии.</p>
+
+    <div class="faq">
+      <details class="card" open>
+        <summary><h3 style="display:inline">Какие форматы на выходе?</h3></summary>
+        <p class="muted">PNG, многоразмерный ICO, ICNS для macOS, WebP и SVG-обёртка (PNG внутри SVG — это не векторизация). На выходе — ZIP со всеми размерами и контактным листом-превью.</p>
+      </details>
+      <details class="card">
+        <summary><h3 style="display:inline">Что такое despill и хромакей?</h3></summary>
+        <p class="muted">Хромакей — удаление однотонного зелёного/синего фона. Despill убирает цветной ореол этого фона, который остаётся на краях объекта, чтобы иконка выглядела чисто на любой подложке.</p>
+      </details>
+      <details class="card">
+        <summary><h3 style="display:inline">Чем отличается AI-удаление фона?</h3></summary>
+        <p class="muted">Для сложного, неоднородного фона подключается нейросеть (rembg). Она точнее на фотографиях и сложных сценах; доступна на тарифе Pro и выше.</p>
+      </details>
+      <details class="card">
+        <summary><h3 style="display:inline">Какие лимиты на Free?</h3></summary>
+        <p class="muted">20 экспортов в месяц, размеры до 1024 px, форматы PNG/ICO/WebP, batch до 3 файлов. Полные лимиты тарифов — на странице <a href="/pricing">Тарифы</a>.</p>
+      </details>
+      <details class="card">
+        <summary><h3 style="display:inline">Можно работать офлайн?</h3></summary>
+        <p class="muted">Да. Десктоп-версия (.exe) содержит всё внутри, не требует Python и интернета — ваши файлы не покидают компьютер. Веб-версия удобна, когда нужен доступ из браузера.</p>
+      </details>
+      <details class="card">
+        <summary><h3 style="display:inline">Как отменить подписку и вернуть деньги?</h3></summary>
+        <p class="muted">Подписку можно не продлевать — по окончании периода тариф вернётся к Free. По возвратам напишите на странице <a href="/contacts">Контакты</a>; условия — в <a href="/offer">оферте</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,7 @@
+{
+  "name": "favicon",
+  "title": "Favicon (web)",
+  "description": "Иконки сайта: favicon.ico + PNG для разных платформ (Apple touch, Android).",
+  "export": { "sizes": [16, 32, 48, 64, 180, 192, 512], "formats": ["png", "ico"] },
+  "crop": { "fit": "contain", "square": true, "padding_pct": 4.0 }
+}

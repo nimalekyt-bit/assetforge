@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Настройки — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Настройки</h2>
+    {% include "_admin_nav.html" %}
+    {% if message %}<div class="flash ok" style="margin-top:16px">{{ message }}</div>{% endif %}
+
+    <div class="card" style="margin-top:16px;max-width:560px">
+      <form method="post" action="/admin/settings">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label class="toggle-row">
+          <input type="checkbox" name="registration_open" value="1" {{ 'checked' if cfg.registration_open == '1' }}>
+          <span><b>Регистрация открыта</b><br><span class="muted tiny">Выключите, чтобы временно запретить новые регистрации.</span></span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" name="maintenance_mode" value="1" {{ 'checked' if cfg.maintenance_mode == '1' }}>
+          <span><b>Режим обслуживания</b><br><span class="muted tiny">Инструмент /app недоступен обычным пользователям (админам — доступен).</span></span>
+        </label>
+        <div class="field" style="margin-top:14px">
+          <label>Анонс (баннер на сайте)</label>
+          <textarea name="announcement" rows="2" placeholder="Пусто = баннер скрыт">{{ cfg.announcement or '' }}</textarea>
+        </div>
+        <div class="row" style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="field"><label>Анонс с (необязательно)</label><input type="datetime-local" name="announcement_start" value="{{ cfg.announcement_start or '' }}"></div>
+          <div class="field"><label>Анонс по (необязательно)</label><input type="datetime-local" name="announcement_end" value="{{ cfg.announcement_end or '' }}"></div>
+        </div>
+        <h3 style="margin-top:20px">Уведомления (новые регистрации и оплаты)</h3>
+        <div class="field"><label>Telegram bot token</label><input type="text" name="telegram_token" value="{{ cfg.telegram_token or '' }}" placeholder="123456:ABC..."></div>
+        <div class="field"><label>Telegram chat id</label><input type="text" name="telegram_chat" value="{{ cfg.telegram_chat or '' }}" placeholder="@channel или 123456789"></div>
+        <div class="field"><label>Webhook URL (произвольный)</label><input type="text" name="notify_webhook" value="{{ cfg.notify_webhook or '' }}" placeholder="https://..."></div>
+        <h3 style="margin-top:20px">Безопасность доступа</h3>
+        <div class="field"><label>IP-allowlist для админки (через запятую, можно CIDR; пусто = без ограничений)</label>
+          <input type="text" name="admin_ip_allowlist" value="{{ cfg.admin_ip_allowlist or '' }}" placeholder="203.0.113.7, 10.0.0.0/24"></div>
+        <div class="field"><label>IP-блок-лист (весь сайт)</label>
+          <input type="text" name="ip_blocklist" value="{{ cfg.ip_blocklist or '' }}" placeholder="198.51.100.0/24"></div>
+        <button class="btn primary" type="submit" style="margin-top:14px"><span>Сохранить</span></button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

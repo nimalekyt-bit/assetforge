@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Сброс пароля — AssetForge{% endblock %}
+{% block content %}
+<div class="auth reveal">
+  <span class="eyebrow">Восстановление доступа</span>
+  <h2 class="display">Забыли пароль?</h2>
+  <p class="muted tiny" style="margin:8px 0 16px">Укажите email — пришлём ссылку для сброса пароля.</p>
+  <form method="post" action="/forgot">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field"><label>Email</label><input name="email" type="email" required autofocus></div>
+    <button class="btn primary block lg" type="submit"><span>Прислать ссылку</span></button>
+  </form>
+  <p class="muted tiny center" style="margin-top:16px">Вспомнили? <a href="/login">Войти</a></p>
+</div>
+{% endblock %}

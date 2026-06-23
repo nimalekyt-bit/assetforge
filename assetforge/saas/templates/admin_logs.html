@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Логи — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Логи (WARNING+)</h2>
+    {% include "_admin_nav.html" %}
+    <div class="seg-tabs">
+      {% for lv, ll in [('', 'Все'), ('WARNING', 'Warning'), ('ERROR', 'Error'), ('CRITICAL', 'Critical')] %}
+        <a href="/admin/logs?level={{ lv }}" class="{{ 'on' if level == lv }}">{{ ll }}</a>
+      {% endfor %}
+    </div>
+    <div class="card" style="margin-top:12px">
+      <table>
+        <tr><th>Время</th><th>Уровень</th><th>Модуль</th><th>Сообщение</th></tr>
+        {% for r in rows %}
+        <tr>
+          <td class="muted tiny" style="white-space:nowrap">{{ r.time }}</td>
+          <td><span class="tag {{ 'failed' if r.level in ('ERROR','CRITICAL') else 'pending' }}">{{ r.level }}</span></td>
+          <td class="muted tiny">{{ r.name }}</td>
+          <td style="font-family:monospace;font-size:12px">{{ r.msg }}</td>
+        </tr>
+        {% else %}<tr><td colspan="4" class="muted">Записей нет — система работает спокойно.</td></tr>{% endfor %}
+      </table>
+    </div>
+    <p class="muted tiny" style="margin-top:10px">Хранятся последние 500 записей в памяти процесса. Для долгого хранения подключите Sentry (ASSETFORGE_SENTRY_DSN).</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Скачать AssetForge для Windows — десктоп-приложение{% endblock %}
+{% block description %}Десктоп-приложение AssetForge для Windows: один файл, без Python и библиотек. Первый запуск устанавливает, дальше обновляется автоматически. Работает офлайн.{% endblock %}
+{% block content %}
+
+<style>
+  /* локальные штрихи для страницы скачивания (поверх дизайн-системы) */
+  .dl-hero .container{align-items:center}
+  .dl-os{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .dl-os .pill{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--smoke-dim);
+    border:1px solid var(--ash-line);background:rgba(20,15,12,.5);border-radius:100px;padding:7px 14px}
+  .dl-os .pill svg{width:15px;height:15px;color:var(--brass)}
+  .dl-note{margin-top:14px;font-size:13px;color:var(--smoke-faint)}
+  .btn .dlsub{font-family:var(--body);font-weight:500;text-transform:none;letter-spacing:0;
+    font-size:12px;opacity:.85;margin-left:4px}
+  /* макет окна приложения внутри plate */
+  .appwin{border-radius:12px;overflow:hidden;border:1px solid var(--ash-line);background:#0c0a08}
+  .appwin .bar{display:flex;align-items:center;gap:8px;padding:9px 12px;
+    background:linear-gradient(180deg,#171210,#0e0b09);border-bottom:1px solid var(--ash-line)}
+  .appwin .bar .dot{width:11px;height:11px;border-radius:50%;background:var(--steel)}
+  .appwin .bar .dot.r{background:#ff5f57}.appwin .bar .dot.y{background:#febc2e}.appwin .bar .dot.g{background:#28c840}
+  .appwin .bar .ttl{margin-left:6px;font-family:var(--display);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--smoke-dim)}
+  .appwin .body{display:grid;grid-template-columns:54px 1fr 60px;gap:8px;padding:12px;height:190px}
+  .appwin .col{display:flex;flex-direction:column;gap:7px}
+  .appwin .thumb{height:34px;border-radius:7px;background:rgba(255,255,255,.03);border:1px solid var(--ash-line)}
+  .appwin .thumb.on{border-color:var(--ember);box-shadow:0 0 14px -3px rgba(255,90,20,.7)}
+  .appwin .canvas{border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative;
+    background-color:#0f0c0a;
+    background-image:linear-gradient(45deg,#1a1512 25%,transparent 25%),linear-gradient(-45deg,#1a1512 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#1a1512 75%),linear-gradient(-45deg,transparent 75%,#1a1512 75%);
+    background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0;overflow:hidden}
+  .appwin .canvas .spark{width:74px;height:74px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 38% 32%,#fff1df,var(--brass-light) 22%,var(--ember) 58%,var(--flame) 100%);
+    box-shadow:0 0 46px 4px rgba(255,90,20,.55);animation:glowPulse 3.2s ease-in-out infinite}
+  .appwin .canvas .spark svg{width:40px;height:40px}
+  .appwin .canvas .scan{position:absolute;left:0;right:0;height:34px;
+    background:linear-gradient(180deg,transparent,rgba(255,150,80,.22),transparent);animation:scan 3.4s ease-in-out infinite}
+  .appwin .ctrl{height:9px;border-radius:5px;background:rgba(255,255,255,.05)}
+  .appwin .ctrl.b{background:linear-gradient(90deg,var(--ember),var(--flame));box-shadow:0 0 10px rgba(255,90,20,.5)}
+  .steps{counter-reset:step;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .step{position:relative;padding:26px 24px 24px;border-radius:16px;
+    background:linear-gradient(165deg,rgba(30,23,20,.7),rgba(13,10,8,.8));border:1px solid var(--ash-line)}
+  .step .n{font-family:var(--display);font-weight:700;font-size:15px;color:#2a0f02;width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+    background:linear-gradient(180deg,var(--ember-bright),var(--flame));box-shadow:0 8px 18px -8px rgba(255,80,20,.7)}
+  .step h3{font-size:18px;margin-bottom:7px}
+  .step p{font-size:14px;color:var(--smoke-dim)}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  .tierbox{padding:20px;border-radius:14px;border:1px solid var(--ash-line);
+    background:linear-gradient(165deg,rgba(30,23,20,.7),rgba(13,10,8,.8))}
+  .tierbox.hot{border-color:transparent;box-shadow:0 0 0 1px rgba(255,150,80,.4) inset,0 30px 70px -36px rgba(255,80,20,.5)}
+  .tierbox .tt{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--brass);margin-bottom:10px}
+  .tierbox ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .tierbox li{font-size:13.5px;color:var(--smoke);padding-left:20px;position:relative}
+  .tierbox li::before{content:"";position:absolute;left:0;top:7px;width:9px;height:9px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,var(--brass-light),var(--ember))}
+  @media(max-width:920px){.steps,.tiers{grid-template-columns:1fr}}
+</style>
+
+<!-- HERO -->
+<section class="hero dl-hero">
+  <div class="container">
+    <div class="hero-copy">
+      <div class="hero-badge"><span class="dot"></span> Один файл · без Python и библиотек</div>
+      <h1 class="display">AssetForge<span class="l2 heat-text">на вашем столе</span></h1>
+      <p class="sub">
+        Полноценное десктоп-приложение для Windows. Первый запуск <b>сам установит</b> программу
+        и создаст ярлыки, а дальше она <b>обновляется автоматически</b>. Базовый режим работает офлайн.
+      </p>
+      <div class="cta">
+        {% if available %}
+        <a href="/desktop/AssetForge-Setup.exe" class="btn primary lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+          <span>Скачать <span class="dlsub">· {{ size_mb }} МБ</span></span>
+        </a>
+        {% else %}
+        <span class="btn lg" style="opacity:.55;cursor:default"><span>Сборка готовится…</span></span>
+        {% endif %}
+        <a href="/pricing" class="btn lg"><span>Тарифы</span></a>
+      </div>
+      <div class="dl-os">
+        <span class="pill"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.5v7H3zM10.5 12.5v7L3 18.5v-6zM11.5 4.3 21 3v8.5h-9.5zM21 12.5V21l-9.5-1.3v-7.2z"/></svg> Windows 10 / 11 · 64-bit</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17l9-10"/></svg> Версия {{ version }}</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Работает офлайн</span>
+      </div>
+      <div class="dl-note">Без прав администратора · установка в профиль пользователя · удаляется как обычная программа.</div>
+    </div>
+
+    <!-- макет окна приложения -->
+    <div class="plate reveal">
+      <div class="plate-top">
+        <span class="ttl">AssetForge · приложение</span>
+        <span class="plate-dots"><i></i><i></i><i></i></span>
+      </div>
+      <div class="appwin">
+        <div class="bar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="ttl">AssetForge</span>
+        </div>
+        <div class="body">
+          <div class="col">
+            <div class="thumb on"></div><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div>
+          </div>
+          <div class="canvas">
+            <div class="scan"></div>
+            <div class="spark"><svg viewBox="0 0 32 32" fill="none"><path d="M16 2 L19 11 L29 14 L19 17 L16 30 L13 17 L3 14 L13 11 Z" fill="#2a0f02" opacity=".5"/></svg></div>
+          </div>
+          <div class="col">
+            <div class="ctrl"></div><div class="ctrl b"></div><div class="ctrl"></div>
+            <div class="ctrl"></div><div class="ctrl b"></div><div class="ctrl"></div>
+          </div>
+        </div>
+      </div>
+      <div class="plate-foot">
+        <span>нативное окно · мгновенный отклик</span>
+        <span class="ok">● установлено</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="molten-rule">
+
+<!-- ПОЧЕМУ ПРИЛОЖЕНИЕ -->
+<section class="sec">
+  <div class="container">
+    <div class="sec-head center reveal">
+      <span class="eyebrow">Почему десктоп</span>
+      <h2 class="display">Удобнее, чем вкладка в браузере</h2>
+      <p>Тот же движок кузницы — но в отдельном окне, под рукой и без лишних кликов.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="card reveal">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
+        <h3>Скачал и запустил</h3>
+        <p>Внутри уже <b>всё необходимое</b> — Python и библиотеки ставить не нужно. Первый запуск
+        установит программу и сделает ярлыки в меню Пуск и на рабочем столе.</p>
+      </div>
+      <div class="card reveal" style="transition-delay:.08s">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div>
+        <h3>Обновляется само</h3>
+        <p>При запуске тихо проверяет новую версию и ставит её одним кликом. <b>Всегда свежая сборка</b>
+        без ручного перекачивания.</p>
+      </div>
+      <div class="card reveal" style="transition-delay:.16s">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Локально и приватно</h3>
+        <p>Базовый режим работает <b>офлайн</b>: картинки обрабатываются на вашем компьютере и
+        никуда не уходят. Быстро и конфиденциально.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- КАК УСТАНОВИТЬ -->
+<section class="sec" style="padding-top:0">
+  <div class="container">
+    <div class="sec-head center reveal">
+      <span class="eyebrow">Три шага</span>
+      <h2 class="display">От скачивания до работы</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="n">1</div>
+        <h3>Скачайте</h3>
+        <p>Один файл <code>AssetForge-Setup.exe</code> — около {{ size_mb }} МБ.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.1s">
+        <div class="n">2</div>
+        <h3>Запустите</h3>
+        <p>Откроется окно установки в фирменном стиле. Нажмите «Установить» — программа сама всё разложит.</p>
+      </div>
+      <div class="step reveal" style="transition-delay:.2s">
+        <div class="n">3</div>
+        <h3>Куйте</h3>
+        <p>Приложение откроется автоматически. Войдите в аккаунт, чтобы снять ограничения по тарифу.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="molten-rule">
+
+<!-- РЕЖИМЫ / ТАРИФЫ -->
+<section class="sec">
+  <div class="container">
+    <div class="sec-head center reveal">
+      <span class="eyebrow">Что доступно</span>
+      <h2 class="display">Бесплатно сразу — больше после входа</h2>
+      <p>Приложение работает без аккаунта. Вход разблокирует возможности вашего тарифа.</p>
+    </div>
+    <div class="tiers reveal">
+      <div class="tierbox">
+        <div class="tt">Гость</div>
+        <ul>
+          <li>Размеры до 256&nbsp;px</li>
+          <li>Формат PNG</li>
+          <li>Удаление фона и обрезка</li>
+          <li>Работает офлайн</li>
+        </ul>
+      </div>
+      <div class="tierbox">
+        <div class="tt">Free · вход</div>
+        <ul>
+          <li>Размеры до 1024&nbsp;px</li>
+          <li>PNG, ICO, WebP</li>
+          <li>Batch до 3 файлов</li>
+          <li>20 экспортов в месяц</li>
+        </ul>
+      </div>
+      <div class="tierbox hot">
+        <div class="tt" style="color:var(--ember-bright)">Pro</div>
+        <ul>
+          <li>Размеры до 4096&nbsp;px</li>
+          <li>Все форматы + ICNS, SVG</li>
+          <li>AI-удаление фона</li>
+          <li>Batch до 100 файлов</li>
+        </ul>
+      </div>
+    </div>
+    <div class="center" style="margin-top:26px">
+      <a href="/pricing" class="btn"><span>Сравнить тарифы</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="container">
+    <h2 class="display heat-text reveal">Поставьте за минуту.</h2>
+    <p class="reveal">Скачайте, запустите — и кузница уже на вашем рабочем столе.</p>
+    <div class="cta reveal">
+      {% if available %}
+      <a href="/desktop/AssetForge-Setup.exe" class="btn primary lg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+        <span>Скачать для Windows</span>
+      </a>
+      {% else %}
+      <span class="btn lg" style="opacity:.55;cursor:default"><span>Сборка готовится…</span></span>
+      {% endif %}
+      <a href="/app" class="btn lg"><span>Открыть в браузере</span></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

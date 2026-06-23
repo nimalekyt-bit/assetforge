@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Журнал входов — Админка{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">Управление кузницей</span>
+    <h2 class="display">Журнал входов</h2>
+    {% include "_admin_nav.html" %}
+    <div class="card" style="margin-top:14px">
+      <table>
+        <tr><th>Время</th><th>Email</th><th>IP</th><th>Тип</th><th>Результат</th></tr>
+        {% for r in rows %}
+        <tr>
+          <td class="muted tiny" style="white-space:nowrap">{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td>{% if r.user_id %}<a href="/admin/users/{{ r.user_id }}">{{ r.email }}</a>{% else %}{{ r.email }}{% endif %}</td>
+          <td class="muted">{{ r.ip }}</td>
+          <td>{{ r.kind }}</td>
+          <td>{% if r.success %}<span class="tag paid">успех</span>{% else %}<span class="tag failed">отказ</span>{% endif %}</td>
+        </tr>
+        {% else %}<tr><td colspan="5" class="muted">Записей нет.</td></tr>{% endfor %}
+      </table>
+    </div>
+    {% if pg.pages > 1 %}
+    <div class="pager">
+      {% if pg.has_prev %}<a class="btn sm" href="/admin/logins?page={{ pg.page - 1 }}"><span>← Назад</span></a>{% endif %}
+      <span class="muted tiny">Стр. {{ pg.page }} из {{ pg.pages }} · всего {{ pg.total }}</span>
+      {% if pg.has_next %}<a class="btn sm" href="/admin/logins?page={{ pg.page + 1 }}"><span>Вперёд →</span></a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

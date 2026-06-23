@@ -1,0 +1,43 @@
+# --- базовые (нужны для веба, CLI и движка) ---
+pillow>=10.0
+numpy>=1.24
+fastapi>=0.110
+uvicorn>=0.27
+python-multipart>=0.0.9
+
+# --- SaaS-слой (сайт, аккаунты, оплата, БД) ---
+sqlalchemy>=2.0
+alembic>=1.13            # миграции схемы БД (alembic upgrade head)
+bcrypt>=4.0              # хэширование паролей (напрямую; passlib несовместим с bcrypt>=4.1)
+itsdangerous>=2.1        # подпись session-cookie (Starlette SessionMiddleware)
+jinja2>=3.1              # серверные шаблоны
+
+# --- опционально: масштабирование на несколько воркеров/инстансов ---
+#   pip install redis      → ASSETFORGE_REDIS_URL=redis://host:6379/0
+#   (общий rate-limit и сессии инструмента между воркерами; без него — память процесса)
+# redis>=5.0
+
+# --- опционально: сбор ошибок ---
+#   pip install sentry-sdk → ASSETFORGE_SENTRY_DSN=...
+# sentry-sdk>=2.0
+
+# --- опционально: QR-картинка для 2FA (иначе показываем ключ текстом) ---
+#   pip install "qrcode[pil]"
+# qrcode>=7.0
+
+# --- БД в проде: Postgres / Supabase ---
+#   pip install "psycopg2-binary>=2.9"
+#   затем ASSETFORGE_DB_URL = строка подключения Supabase (см. DEPLOY.md)
+# psycopg2-binary>=2.9
+
+# --- опционально: AI-удаление сложного фона ---
+#   pip install rembg onnxruntime
+# (модель u2net скачается при первом запуске режима "ai")
+
+# --- desktop-приложение: нативное окно (Edge WebView2 на Windows) ---
+#   pip install pywebview
+#   нужно для AssetForge.exe — без него приложение откроется в браузере
+pywebview>=5.0
+
+# --- опционально: сборка .exe ---
+#   pip install pyinstaller
