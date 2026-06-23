@@ -1,76 +1,87 @@
 <div align="center">
-  <img src="https://placehold.co/120x120/1e1e1e/ffffff?text=AF" alt="AssetForge Logo" width="120" height="120" style="border-radius: 20%; margin-bottom: 20px;" />
 
-  # 🎨 AssetForge
+<a name="readme-top"></a>
 
-  **The Ultimate Local-First Image Asset Pipeline**
+<!-- TODO: Загрузите сюда красивый широкий баннер (1200x300) и замените ссылку -->
+<img src="https://placehold.co/1200x300/1e1e1e/ffffff?text=AssetForge+Banner" alt="AssetForge Banner" width="100%" />
 
-  [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-  [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-  [![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)](https://opensource.org/licenses/MIT)
+# AssetForge
 
-  *AssetForge automates background removal, smart cropping, and batch exporting for developers and designers.*
+<p align="center">
+  <strong>The Ultimate Local-First Image Asset Pipeline</strong>
+</p>
 
-  [English](#english) • [Русский](#русский)
+<p align="center">
+  <a href="#english">English</a> • <a href="#русский">Русский</a>
+</p>
+
+<p align="center">
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License"></a>
+  <a href="https://github.com/nimalekyt-bit/assetforge/stargazers"><img src="https://img.shields.io/github/stars/nimalekyt-bit/assetforge?style=flat-square" alt="Stars"></a>
+</p>
+
+*AssetForge automates background removal, smart cropping, and batch exporting for developers and designers.*
+
 </div>
 
----
+<br/>
 
-<a id="english"></a>
-## 🇬🇧 English
+<details>
+<summary><kbd>Table of contents</kbd></summary>
+
+- [🇬🇧 English](#-english)
+  - [✨ Features](#-features)
+  - [👋🏻 Getting Started](#-getting-started)
+  - [📦 Architecture](#-architecture)
+- [🇷🇺 Русский](#-русский)
+  - [✨ Возможности](#-возможности)
+  - [👋🏻 С чего начать](#-с-чего-начать)
+
+</details>
+
+<br/>
+
+## 🇬🇧 English <a id="english"></a>
+
+> [!NOTE]
+> **Star Us!** If you find this project useful, please consider giving it a ⭐️. It helps others discover the tool!
 
 AssetForge is a high-performance tool built to handle the heavy lifting of image asset preparation. Whether you're generating iOS/Android app icons, preparing assets for a game, or cleaning up e-commerce product photos, AssetForge provides a seamless experience via Web UI, CLI, or Desktop app.
 
-### ✨ Why AssetForge?
+### ✨ Features
 
-> **"Stop wasting hours cropping and resizing icons manually."**
+| Feature | Description |
+| :--- | :--- |
+| 🧠 **AI Background Removal** | Seamlessly extract subjects using Rembg and ONNXRuntime. |
+| 🎯 **Smart Auto-Crop** | Detects the actual object boundaries and applies mathematically perfect padding. |
+| 📦 **Batch Exporting** | Generate dozens of formats (PNG, ICO, ICNS, WebP) and sizes in a single click. |
+| 🔌 **Versatile Interfaces** | Use the Web Dashboard, CLI mode, or Native Desktop App wrapper (`pywebview`). |
+| ☁️ **SaaS Ready** | Includes built-in billing adapters, quota management, and an admin dashboard. |
 
-- 🧠 **AI-Powered Background Removal**: Seamlessly extract subjects using Rembg and ONNXRuntime.
-- 🎯 **Smart Auto-Crop**: Detects the actual object boundaries and applies safe, mathematically perfect padding.
-- 📦 **Batch Exporting**: Generate dozens of formats (PNG, ICO, ICNS, WebP) and sizes (16px to 1024px) in a single click.
-- 🔌 **Versatile Interfaces**:
-  - **Web Dashboard**: Clean, responsive FastAPI interface with live previews.
-  - **CLI Mode**: Perfect for integrating into CI/CD pipelines.
-  - **Native Desktop**: Packaged as a standalone app via `pywebview`.
-- ☁️ **SaaS Ready**: Includes built-in billing adapters, quota management, and an admin dashboard.
-
-<br>
-
-<div align="center">
-  <!-- TODO: Replace with an actual screenshot -->
-  <img src="https://placehold.co/800x400/1e1e1e/ffffff?text=Drop+your+awesome+screenshot+here" alt="AssetForge UI" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
-</div>
-
-<br>
-
-### 🚀 Quick Start
+### 👋🏻 Getting Started
 
 Get up and running in less than 2 minutes.
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/nimalekyt-bit/assetforge.git
 cd assetforge
 
-# 2. Set up the virtual environment
+# Setup virtual environment
 python -m venv .venv
 
-# On Windows:
+# Activate it (Windows)
 .venv\Scripts\activate
-# On macOS/Linux:
-# source .venv/bin/activate
+# For macOS/Linux: source .venv/bin/activate
 
-# 3. Install dependencies
 pip install -r requirements.txt
-
-# 4. Launch the Web UI
 python -m assetforge
 ```
-🌐 Open `http://localhost:8000` in your browser.
 
----
+Open `http://localhost:8000` in your browser.
 
-### 📂 Architecture Overview
+### 📦 Architecture
 
 ```text
 📦 assetforge
@@ -78,43 +89,45 @@ python -m assetforge
  ┣ 📂 server/       # FastAPI application and routing
  ┣ 📂 web/          # Frontend assets (HTML, CSS, JS)
  ┣ 📂 saas/         # Billing, user accounts, quotas, and admin APIs
- ┣ 📂 presets/      # JSON configuration for export presets (iOS, Android, Steam)
+ ┣ 📂 presets/      # JSON configuration for export presets
  ┣ 📜 cli.py        # Command-line interface entry point
- ┗ 📜 desktop.py    # Desktop wrapper (pywebview)
+ ┗ 📜 desktop.py    # Desktop wrapper
 ```
 
-<br>
+<p align="right"><a href="#readme-top">⤴️ Back to Top</a></p>
 
 ---
 
-<a id="русский"></a>
-## 🇷🇺 Русский
+## 🇷🇺 Русский <a id="русский"></a>
 
-AssetForge — это мощный локальный инструмент для подготовки изображений. Если вы когда-либо тратили часы на удаление фона, выравнивание иконок или нарезку логотипов под разные платформы (iOS, Android, Web), этот инструмент сделает всё за вас.
+> [!NOTE]
+> **Поддержите проект!** Если вам нравится этот инструмент, поставьте ⭐️ репозиторию.
 
-### ✨ Почему AssetForge?
+AssetForge — это мощный локальный инструмент для подготовки изображений. Если вы когда-либо тратили часы на удаление фона, выравнивание иконок или нарезку логотипов под разные платформы, этот инструмент сделает всё за вас.
 
-> **"Автоматизируйте рутину работы с графикой."**
+### ✨ Возможности
 
-- 🧠 **Умное удаление фона**: Поддержка хромакея и AI-удаления фона (Rembg / ONNXRuntime).
-- 🎯 **Smart Auto-Crop**: Алгоритм сам находит границы объекта и добавляет идеальные отступы.
-- 📦 **Массовый экспорт**: Готовые пресеты для генерации favicon, иконок приложений, ассетов для Discord, Steam, iOS и Android.
-- 🔌 **Три режима работы**:
-  - **Web UI**: Удобный дашборд с предпросмотром.
-  - **CLI**: Для интеграции в пайплайны и массовой обработки.
-  - **Desktop**: Нативное приложение через `pywebview`.
-- ☁️ **SaaS Модуль**: Встроенная админка, биллинг, квоты и система пользователей (для развертывания как полноценного продукта).
+| Фича | Описание |
+| :--- | :--- |
+| 🧠 **Удаление фона** | Поддержка хромакея и AI-удаления (Rembg / ONNXRuntime). |
+| 🎯 **Smart Auto-Crop** | Алгоритм сам находит границы объекта и добавляет идеальные отступы. |
+| 📦 **Массовый экспорт** | Готовые пресеты для favicon, иконок приложений (iOS/Android), Discord и Steam. |
+| 🔌 **Три режима** | Удобный Web UI, мощный CLI и Desktop-версия. |
+| ☁️ **SaaS Модуль** | Встроенная админка, биллинг и квоты для запуска как SaaS-продукта. |
 
-<br>
-
-### 🚀 Быстрый старт
+### 👋🏻 С чего начать
 
 ```bash
 git clone https://github.com/nimalekyt-bit/assetforge.git
 cd assetforge
+
+# Создать окружение
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+
+# Запустить приложение
 python -m assetforge
 ```
-🌐 Откройте `http://localhost:8000` в браузере.
+
+<p align="right"><a href="#readme-top">⤴️ Back to Top</a></p>
