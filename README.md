@@ -2,7 +2,7 @@
 
 <a name="readme-top"></a>
 
-<img src="assets/banner.png" alt="AssetForge Banner" width="100%" />
+<img src="assets/screenshot.png" alt="AssetForge Banner" width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
 
 # AssetForge
 
