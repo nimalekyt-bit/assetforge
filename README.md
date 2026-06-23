@@ -2,8 +2,7 @@
 
 <a name="readme-top"></a>
 
-<!-- TODO: Загрузите сюда красивый широкий баннер (1200x300) и замените ссылку -->
-<img src="https://placehold.co/1200x300/1e1e1e/ffffff?text=AssetForge+Banner" alt="AssetForge Banner" width="100%" />
+<img src="assets/banner.png" alt="AssetForge Banner" width="100%" />
 
 # AssetForge
 
