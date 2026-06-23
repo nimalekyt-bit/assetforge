@@ -1,87 +1,70 @@
-# AssetForge
+# 🎨 AssetForge
 
-AssetForge is a local-first tool for preparing image assets: background removal, smart cropping, resizing and exporting icon/logo packs for web, desktop and mobile products.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-The project works as a web app, a CLI tool and a Windows desktop wrapper. It also includes an optional SaaS layer with accounts, plans, quotas, admin tools and API access.
+*(Scroll down for Russian version / Прокрутите вниз для русской версии)*
 
-## Highlights
+## 🇬🇧 English
 
-- Automatic background detection: transparent, white, solid, chroma key and AI-assisted removal.
-- Smart crop and split: detects content bounds, adds padding and can split multiple objects from one image.
-- Export presets for favicons, launchers, Discord, Steam, Android, iOS and custom sizes.
-- Multiple output formats: PNG, ICO, ICNS, WebP and SVG wrapper.
-- FastAPI web interface with live preview.
-- CLI mode for batch processing.
-- Optional desktop mode through `pywebview`.
-- Optional SaaS mode with auth, billing adapters, quotas, admin dashboard and public API.
-- Test suite for image-processing metrics, SaaS flows and admin features.
+**AssetForge** is a local-first, high-performance tool for preparing image assets. It automates background removal, smart cropping, resizing, and exporting icon/logo packs for web, desktop, and mobile products.
 
-## Stack
+Whether you are a developer preparing icons for your next app, or a designer needing a quick batch export, AssetForge handles the heavy lifting through a clean Web UI, a Desktop app, or a CLI.
 
-- Python
-- FastAPI / Uvicorn
-- Pillow / NumPy
-- SQLAlchemy / Alembic
-- Jinja2
-- Optional: rembg, onnxruntime, Redis, pywebview
+### ✨ Key Features
+- **Intelligent Background Removal:** Supports transparent, white, solid, chroma key, and AI-assisted removal.
+- **Smart Crop & Split:** Automatically detects content bounds, adds safe padding, and splits multiple objects from a single canvas.
+- **Export Presets:** Ready-made presets for favicons, app launchers, Discord, Steam, Android, iOS, and custom dimensions.
+- **Multiple Formats:** Export to PNG, ICO, ICNS, WebP, and SVG wrapper.
+- **Flexible Interfaces:** 
+  - **Web UI:** FastAPI-powered dashboard with live preview.
+  - **CLI Mode:** Perfect for batch processing pipelines.
+  - **Desktop Wrapper:** Native-like experience via `pywebview`.
+- **Optional SaaS Layer:** Built-in support for accounts, billing, quotas, and admin tools (ideal for scaling into a product).
 
-## Quick Start
+### 🛠 Tech Stack
+- **Backend:** Python, FastAPI, Uvicorn, SQLAlchemy
+- **Image Processing:** Pillow, NumPy, Rembg (AI), ONNXRuntime
+- **Frontend/Desktop:** Jinja2, PyWebview
 
+### 🚀 Quick Start
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 python -m assetforge
 ```
+Then open `http://localhost:8000` in your browser.
 
-The local web interface starts in the browser. For online deployment, run:
+---
 
+## 🇷🇺 Русский
+
+**AssetForge** — это мощный локальный инструмент для подготовки изображений. Он автоматизирует удаление фона, умную обрезку, изменение размера и экспорт наборов иконок и логотипов для веб-, десктоп- и мобильных продуктов.
+
+Проект работает как веб-приложение, утилита командной строки (CLI) и десктопное приложение.
+
+### ✨ Главные возможности
+- **Умное удаление фона:** Поддержка прозрачного, белого, сплошного фона, хромакея и AI-удаления.
+- **Smart Crop и разделение:** Автоматическое определение границ объекта, добавление отступов и извлечение нескольких объектов с одного изображения.
+- **Пресеты для экспорта:** Готовые шаблоны для favicon, иконок приложений, Discord, Steam, Android, iOS.
+- **Поддерживаемые форматы:** PNG, ICO, ICNS, WebP и SVG (wrapper).
+- **Разные режимы работы:**
+  - **Web UI:** Удобный интерфейс на FastAPI с предпросмотром в реальном времени.
+  - **CLI:** Режим командной строки для массовой обработки.
+  - **Desktop:** Десктопная версия на базе `pywebview`.
+- **SaaS Модуль (опционально):** Встроенная поддержка аккаунтов, тарифов, квот, админ-панели и API.
+
+### 🛠 Стек технологий
+- **Backend:** Python, FastAPI, Uvicorn, SQLAlchemy
+- **Обработка изображений:** Pillow, NumPy, Rembg (AI), ONNXRuntime
+
+### 🚀 Быстрый старт
 ```bash
-uvicorn assetforge.server.app:app --host 0.0.0.0 --port 8000
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m assetforge
 ```
-
-## CLI
-
-```bash
-python -m assetforge.cli logo.png -o out --preset icon-set
-python -m assetforge.cli assets/ -o out --preset all --split auto --bg auto
-python -m assetforge.cli a.png b.png -o out --sizes 16,32,64,128 --formats png,ico --zip
-```
-
-## SaaS Mode
-
-```bash
-python run_saas.py
-```
-
-SaaS mode includes registration, login, plans, quotas, promo codes, API keys, admin roles, audit logs, settings, payment adapters and desktop release management.
-
-## Tests
-
-```bash
-python -m tests.test_engine
-python -m tests.test_saas
-python -m tests.test_admin
-python -m tests.test_hardening
-python -m tests.test_features
-```
-
-## Project Structure
-
-```text
-assetforge/
-  core/       image-processing pipeline
-  server/     FastAPI app and local web interface
-  web/        frontend assets for the local tool
-  saas/       accounts, plans, payments, admin and public API
-  presets/    JSON export presets
-  cli.py      batch-processing CLI
-  desktop.py  desktop wrapper
-migrations/   Alembic migrations
-installer/    desktop installer helpers
-tests/        engine, SaaS, admin and hardening tests
-```
-
-## Notes
-
-This repository intentionally excludes local secrets, databases, generated builds and temporary processing output. Use `.env.example` as a template for local configuration.
+Откройте `http://localhost:8000` в браузере.
